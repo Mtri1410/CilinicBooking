@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Chi tiết bác sĩ</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-8">
+        <h1 class="text-2xl font-bold mb-6">Chi tiết bác sĩ</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <div class="mb-3"><span class="font-semibold">Họ tên:</span> <span th:text="${doctor.fullname}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Username:</span> <span
+                        th:text="${doctor.account.username}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Email:</span> <span
+                        th:text="${doctor.account.email}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Chuyên khoa:</span> <span
+                        th:text="${doctor.specialty}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Địa chỉ:</span> <span th:text="${doctor.address}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Số GPHN:</span> <span th:text="${doctor.license}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Giới tính:</span> <span th:text="${doctor.gender}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Ngày sinh:</span> <span
+                        th:text="${doctor.birthday}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Số điện thoại:</span> <span
+                        th:text="${doctor.phoneNumber}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Trạng thái:</span> <span
+                        th:text="${doctor.status}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Membership:</span> <span
+                        th:text="${doctor.membership != null ? doctor.membership.name : 'Chưa có'}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Ngày bắt đầu:</span> <span
+                        th:text="${doctor.startdate}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Ngày kết thúc:</span> <span
+                        th:text="${doctor.enddate}"></span></div>
+            </div>
+            <div>
+                <div class="mb-3"><span class="font-semibold">Kinh nghiệm:</span>
+                    <div class="whitespace-pre-line text-gray-700 mt-1" th:text="${doctor.experience}"></div>
+                </div>
+                <div th:if="${doctor.image}" class="mb-3">
+                    <span class="font-semibold">Ảnh:</span><br>
+                    <img th:src="${doctor.image}" alt="Ảnh bác sĩ" class="mt-2 rounded shadow max-w-xs max-h-60" />
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 flex justify-end">
+            <a th:href="@{/admin/partners}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Quay lại danh
+                sách</a>
+        </div>
+    </div>
+</body>
+
+</html>

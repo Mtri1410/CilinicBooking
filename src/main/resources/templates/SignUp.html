@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>Hello Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
+  <!-- Google Fonts Roboto -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
+  <!-- MDB -->
+  <link rel="stylesheet" href="../static/style/css/bootstrap-login-form.min.css" />
+</head>
+
+<body>
+
+  <style>
+    .divider:after,
+    .divider:before {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #eee;
+    }
+
+    .h-custom {
+      height: calc(100% - 73px);
+    }
+
+    @media (max-width: 450px) {
+      .h-custom {
+        height: 100%;
+      }
+    }
+  </style>
+  <section class="vh-100">
+    <div class="container-fluid h-custom ">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-md-9 col-lg-6 col-xl-5">
+          <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp" class="img-fluid"
+            alt="Sample image">
+        </div>
+        <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1 pt-5 pb-5">
+          <form id="signupform" th:action="@{SignUp}" method="post" th:object="${account}">
+            <!-- <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
+                  <p class="lead fw-normal mb-0 me-3">Sign in with</p>
+                  <a>
+                    <button type="button" class="btn btn-primary btn-floating mx-1">
+                      <i class="fab fa-facebook-f"></i>
+                    </button>
+                  </a>
+                  <a>
+                    <button type="button" class="btn btn-primary btn-floating mx-1">
+                      <i class="fab fa-twitter"></i>
+                    </button>
+                  </a>
+                  <a th:href="@{/oauth2/authorization/google}">
+                    <button type="button" class="btn btn-primary btn-floating mx-1">
+                      <i class="fab fa-google"></i>
+                    </button>
+                  </a>
+                </div> -->
+
+            <div class="divider d-flex align-items-center my-4">
+              <p class="text-center fw-bold mx-3 mb-0">Or</p>
+            </div>
+
+            <div class="text-danger" th:if="${param.error}" th:text="${param.error}"></div>
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example7-fullname">Full Name</label>
+              <input type="text" id="form3Example7-fullname" class="form-control form-control-lg"
+                placeholder="Enter Full Name" name="fullname" />
+
+            </div>
+            <small class="text-danger" id="FullNameError"></small>
+
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example5-username">UserName</label>
+              <input type="text" id="form3Example5-username" class="form-control form-control-lg"
+                placeholder="Enter a UserName" th:field="*{username}" />
+
+            </div>
+            <small class="text-danger" id="usernameError"></small>
+
+            <!-- Email input -->
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example3-email">Email address</label>
+              <input type="email" id="form3Example3-email" class="form-control form-control-lg"
+                placeholder="Enter your email address" th:field="*{email}" />
+
+            </div>
+            <small class="text-danger" id="emailError"></small>
+
+
+            <!-- Password input -->
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example4-password">Password</label>
+              <div class="input-group input-group-lg">
+                <input type="password" id="form3Example4-password" class="form-control" placeholder="Enter password"
+                  th:field="*{password}" />
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <small class="text-danger" id="passError"></small>
+
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example6-comfirmpassword">Confirm Password</label>
+              <div class="input-group input-group-lg">
+                <input type="password" id="form3Example6-comfirmpassword" class="form-control"
+                  placeholder="Enter confirm password" name="confirmpass" />
+                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+            <small class="text-danger" id="comfirmpasserror"></small>
+
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example8-adress">Adress</label>
+              <input type="text" id="form3Example8-adress" class="form-control form-control-lg"
+                placeholder="Enter your adress" name="adress" />
+
+            </div>
+            <small class="text-danger" id="adressError"></small>
+
+            <div class="form-outline mb-1">
+              <label class="form-label" for="form3Example9-phonenumber">Phone number</label>
+              <input type="text" id="form3Example9-phonenumber" class="form-control form-control-lg"
+                placeholder="Enter your phone number" name="phonenumber" />
+
+            </div>
+            <small class="text-danger" id="phoneNumbererror"></small>
+
+            <div class="text-center text-lg-start mt-4 pt-2">
+              <button type="submit" class="btn btn-primary btn-lg"
+                style="padding-left: 2.5rem; padding-right: 2.5rem;">SignUp</button>
+              <p class="small fw-bold mt-2 pt-1 mb-0">You have an account? <a th:href="@{/SignIn}"
+                  class="link-danger">SignIn</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </section>
+  <script>
+    console.log("Ban ơi");
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script th:src="@{/js/SignUp.js}"></script>
+</body>
+
+</html>

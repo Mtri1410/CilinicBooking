@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title th:text="${pageTitle ?: 'Đăng ký trở thành đối tác'}">Đăng ký trở thành đối tác</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E88E5', // Blue-600 for healthcare branding
+                        'primary-hover': '#1565C0', // Blue-700
+                        'error': '#EF4444', // Red-500
+                        'success': '#10B981', // Green-500
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <h2 class="text-4xl font-bold text-gray-900 tracking-tight">Đăng ký trở thành đối tác</h2>
+        </div>
+
+        <!-- Card -->
+        <div class="bg-white shadow-2xl rounded-2xl p-8 sm:p-10 space-y-6">
+            <!-- Success Message -->
+            <div th:if="${successMessage}"
+                class="bg-green-50 border-l-4 border-success p-4 rounded-lg flex items-start gap-3">
+                <svg class="h-5 w-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-success">Thành công!</p>
+                    <p class="text-sm text-green-700" th:text="${successMessage}"></p>
+                </div>
+            </div>
+
+            <!-- General Error Message -->
+            <div th:if="${errorMessage}"
+                class="bg-red-50 border-l-4 border-error p-4 rounded-lg flex items-start gap-3">
+                <svg class="h-5 w-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-error">Lỗi!</p>
+                    <p class="text-sm text-red-700" th:text="${errorMessage}"></p>
+                </div>
+            </div>
+
+            <form th:action="@{/user/register-doctor}" th:object="${doctor}" method="post" class="space-y-6">
+                <!-- Global Form Errors -->
+                <div th:if="${#fields.hasGlobalErrors()}" class="bg-red-50 border-l-4 border-error p-4 rounded-lg">
+                    <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"
+                        class="text-sm text-red-700 mb-1 last:mb-0"></p>
+                </div>
+
+                <!-- Fullname -->
+                <div>
+                    <label for="fullname" class="block text-sm font-medium text-gray-700">Họ và Tên <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="fullname" th:field="*{fullname}"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                        placeholder="Nguyễn Văn A" required />
+                    <p th:if="${#fields.hasErrors('fullname')}" th:errors="*{fullname}" class="mt-1 text-sm text-error">
+                    </p>
+                </div>
+
+                <!-- Gender and Birthday -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700">Giới tính <span
+                                class="text-red-500">*</span></label>
+                        <select id="gender" th:field="*{gender}"
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                            required>
+                            <option value="" disabled>-- Chọn giới tính --</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                        <p th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}" class="mt-1 text-sm text-error">
+                        </p>
+                    </div>
+                    <div>
+                        <label for="birthday" class="block text-sm font-medium text-gray-700">Ngày sinh <span
+                                class="text-red-500">*</span></label>
+                        <input type="date" id="birthday" th:field="*{birthday}"
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                            required />
+                        <p th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}"
+                            class="mt-1 text-sm text-error"></p>
+                    </div>
+                </div>
+
+                <!-- Specialty -->
+                <div>
+                    <label for="specialty" class="block text-sm font-medium text-gray-700">Chuyên khoa <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="specialty" th:field="*{specialty}"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                        placeholder="Ví dụ: Tim mạch, Da liễu" required />
+                    <p th:if="${#fields.hasErrors('specialty')}" th:errors="*{specialty}"
+                        class="mt-1 text-sm text-error"></p>
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700">Địa chỉ phòng khám</label>
+                    <input type="text" id="address" th:field="*{address}"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                        placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố" />
+                    <p th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="mt-1 text-sm text-error">
+                    </p>
+                </div>
+
+                <!-- License -->
+                <div>
+                    <label for="license" class="block text-sm font-medium text-gray-700">Số giấy phép hành nghề <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" id="license" th:field="*{license}"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150"
+                        placeholder="Số GPHN" required />
+                    <p th:if="${#fields.hasErrors('license')}" th:errors="*{license}" class="mt-1 text-sm text-error">
+                    </p>
+                </div>
+
+                <!-- Experience -->
+                <div>
+                    <label for="experience" class="block text-sm font-medium text-gray-700">Kinh nghiệm làm việc</label>
+                    <textarea id="experience" th:field="*{experience}" rows="5"
+                        class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition duration-150 resize-y"
+                        placeholder="Mô tả quá trình học tập, công tác, các chứng chỉ liên quan, thành tựu..."></textarea>
+                    <p th:if="${#fields.hasErrors('experience')}" th:errors="*{experience}"
+                        class="mt-1 text-sm text-error"></p>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-3 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150">
+                        Gửi Đơn Đăng Ký
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

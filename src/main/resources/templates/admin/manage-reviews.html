@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Manage Patient Reviews</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản lí đánh giá của bệnh nhân</h1>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <span class="block sm:inline" th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}"
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <span class="block sm:inline" th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Filter Form -->
+        <form th:action="@{/admin/reviews}" method="get" class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                <div class="form-group">
+                    <label for="filterDoctorId" class="block text-sm font-medium text-gray-700 mb-1">Lọc theo Bác
+                        Sĩ:</label>
+                    <select id="filterDoctorId" name="filterDoctorId"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-2 px-3">
+                        <option value="">Tất cả Bác Sĩ</option>
+                        <option th:each="doctor : ${doctors}" th:value="${doctor.doctorId}" th:text="${doctor.fullname}"
+                            th:selected="${doctor.doctorId == selectedDoctorId}">Dr. Name</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterRating" class="block text-sm font-medium text-gray-700 mb-1">Lọc theo Đánh
+                        Giá:</label>
+                    <select id="filterRating" name="filterRating"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-2 px-3">
+                        <option value="">Tất cả Đánh Giá</option>
+                        <option th:each="r : ${#numbers.sequence(5, 1, -1)}" th:value="${r}" th:text="${r} + ' Sao'"
+                            th:selected="${r == selectedRating}">X Stars</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterStatus" class="block text-sm font-medium text-gray-700 mb-1">Lọc theo Trạng
+                        Thái:</label>
+                    <select id="filterStatus" name="filterStatus"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 py-2 px-3">
+                        <option value="">Tất cả Trạng Thái</option>
+                        <option th:each="statusVal : ${reviewStatuses}" th:value="${statusVal}"
+                            th:text="${statusVal.name()}" th:selected="${statusVal == selectedStatus}">Status</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-300 w-full">Lọc</button>
+                    <a th:href="@{/admin/reviews}"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md transition-colors duration-300 w-full text-center">Xóa
+                        Lọc</a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Reviews Table -->
+        <div class="bg-white shadow-xl rounded-lg overflow-x-auto">
+            <table class="w-full text-left table-auto">
+                <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">ID</th>
+                        <th class="px-6 py-3 font-semibold">Bệnh Nhân</th>
+                        <th class="px-6 py-3 font-semibold">Bác Sĩ</th>
+                        <th class="px-6 py-3 font-semibold">Đánh Giá</th>
+                        <th class="px-6 py-3 font-semibold">Bình Luận</th>
+                        <th class="px-6 py-3 font-semibold">Ngày</th>
+                        <th class="px-6 py-3 font-semibold">Trạng Thái</th>
+                        <th class="px-6 py-3 font-semibold text-center">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm">
+                    <tr th:if="${#lists.isEmpty(reviewsList)}">
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">Không tìm thấy đánh giá nào.</td>
+                    </tr>
+                    <tr th:each="review : ${reviewsList}"
+                        class="border-b border-gray-200 hover:bg-gray-100 transition-colors">
+                        <td class="px-6 py-4" th:text="${review.reviewId}"></td>
+                        <td class="px-6 py-4" th:text="${review.patient?.fullName ?: 'N/A'}"></td>
+                        <td class="px-6 py-4" th:text="${review.doctor?.fullname ?: 'N/A'}"></td>
+                        <td class="px-6 py-4" th:text="${review.rating} + '/5'"></td>
+                        <td class="px-6 py-4 max-w-xs truncate" th:text="${review.comment}"
+                            th:title="${review.comment}"></td>
+                        <td class="px-6 py-4" th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="px-6 py-4">
+                            <span th:text="${review.status.name()}" th:classappend="${review.status.name() == 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                                   (review.status.name() == 'APPROVED' ? 'bg-green-100 text-green-800' :
+                                                    'bg-red-100 text-red-800')}"
+                                class="px-2 py-1 font-semibold text-xs rounded-full">
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center space-x-1">
+                            <form th:action="@{/admin/reviews/approve/{id}(id=${review.reviewId})}" method="post"
+                                class="inline-block"
+                                th:if="${review.status.name() == 'PENDING' or review.status.name() == 'REJECTED'}">
+                                <button type="submit"
+                                    class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1 px-2 rounded-md shadow-sm transition-colors">Approve</button>
+                            </form>
+                            <form th:action="@{/admin/reviews/reject/{id}(id=${review.reviewId})}" method="post"
+                                class="inline-block"
+                                th:if="${review.status.name() == 'PENDING' or review.status.name() == 'APPROVED'}">
+                                <button type="submit"
+                                    class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1 px-2 rounded-md shadow-sm transition-colors">Reject</button>
+                            </form>
+                            <form th:action="@{/admin/reviews/delete/{id}(id=${review.reviewId})}" method="post"
+                                class="inline-block">
+                                <button type="submit"
+                                    class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-1 px-2 rounded-md shadow-sm transition-colors"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

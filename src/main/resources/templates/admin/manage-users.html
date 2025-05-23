@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Manage Users</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Quản lí người dùng</h1>
+            <!-- Xoá hoặc ẩn nút thêm người dùng mới -->
+        </div>
+        <form method="get" th:action="@{/admin/users}" class="flex flex-wrap gap-4 mb-6 items-end" id="filterForm">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700">Tìm kiếm Họ tên/SĐT</label>
+                <input type="text" id="search" name="search" th:value="${search}" placeholder="Nhập họ tên hoặc SĐT..."
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    autocomplete="off" />
+            </div>
+            <div>
+                <label for="sortField" class="block text-sm font-medium text-gray-700">Sắp xếp theo</label>
+                <select id="sortField" name="sortField" th:value="${sortField}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="userId" th:selected="${sortField == 'userId'}">ID</option>
+                    <option value="fullName" th:selected="${sortField == 'fullName'}">Họ tên</option>
+                    <option value="phoneNumber" th:selected="${sortField == 'phoneNumber'}">SĐT</option>
+                    <option value="createdAt" th:selected="${sortField == 'createdAt'}">Ngày tạo</option>
+                </select>
+            </div>
+            <div>
+                <label for="sortDir" class="block text-sm font-medium text-gray-700">Chiều</label>
+                <select id="sortDir" name="sortDir" th:value="${sortDir}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
+                    <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
+                </select>
+            </div>
+            <div>
+                <label for="size" class="block text-sm font-medium text-gray-700">Số dòng/trang</label>
+                <select id="size" name="size" th:value="${usersPage.size}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option th:value="10" th:selected="${usersPage.size == 10}">10</option>
+                    <option th:value="20" th:selected="${usersPage.size == 20}">20</option>
+                    <option th:value="50" th:selected="${usersPage.size == 50}">50</option>
+                    <option th:value="100" th:selected="${usersPage.size == 100}">100</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Lọc</button>
+            </div>
+        </form>
+        <script>
+            // Debounce search input
+            let searchTimeout;
+            document.getElementById('search').addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    document.getElementById('filterForm').submit();
+                }, 500);
+            });
+        </script>
+        <div th:if="${successMessage}" class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">[[${successMessage}]]
+        </div>
+        <div th:if="${errorMessage}" class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">[[${errorMessage}]]</div>
+        <div class="flex items-center justify-between mt-2 mb-2"
+            th:if="${usersPage != null && usersPage.totalElements > 0}">
+            <div class="text-sm text-gray-600">
+                Hiển thị <span th:text="${usersPage.number * usersPage.size + 1}"></span>–<span
+                    th:text="${usersPage.number * usersPage.size + usersPage.numberOfElements}"></span> trên
+                tổng <span th:text="${usersPage.totalElements}"></span> người dùng
+            </div>
+        </div>
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+            <table class="w-full text-left table-auto">
+                <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">ID</th>
+                        <th class="px-6 py-3 font-semibold">Họ tên</th>
+                        <th class="px-6 py-3 font-semibold">SĐT</th>
+                        <th class="px-6 py-3 font-semibold">Địa chỉ</th>
+                        <th class="px-6 py-3 font-semibold">Note</th>
+                        <th class="px-6 py-3 font-semibold">Followup</th>
+                        <th class="px-6 py-3 font-semibold">Ngày tạo</th>
+                        <th class="px-6 py-3 font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm">
+                    <tr th:each="user : ${users}" class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.userId}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.fullName}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.phoneNumber}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.address}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.note}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${user.followup}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap"
+                            th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.userId})}"
+                                class="text-blue-600 hover:text-blue-800 font-medium">Edit</a>
+                            <a th:href="@{/admin/users/view/{id}(id=${user.userId})}"
+                                class="text-green-600 hover:text-green-800 font-medium">View</a>
+                            <form th:action="@{/admin/users/delete/{id}(id=${user.userId})}" method="post"
+                                style="display:inline"
+                                onsubmit="return confirm('Bạn có chắc chắn muốn xoá người dùng này?');">
+                                <button type="submit"
+                                    class="text-red-600 hover:text-red-800 font-medium bg-transparent border-none cursor-pointer">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${users == null or #lists.isEmpty(users)}">
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">No users found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex justify-center mt-6" th:if="${usersPage != null && usersPage.totalPages > 1}">
+            <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+                <a th:href="@{/admin/users(page=0, size=${usersPage.size}, search=${search}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:classappend="${usersPage.first} ? 'pointer-events-none opacity-50' : ''"
+                    class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-l-md">&laquo;</a>
+                <a th:each="i : ${#numbers.sequence(0, usersPage.totalPages-1)}"
+                    th:href="@{/admin/users(page=${i}, size=${usersPage.size}, search=${search}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:text="${i+1}"
+                    th:classappend="${usersPage.number == i} ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    class="px-3 py-2 border border-gray-300"></a>
+                <a th:href="@{/admin/users(page=${usersPage.totalPages-1}, size=${usersPage.size}, search=${search}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:classappend="${usersPage.last} ? 'pointer-events-none opacity-50' : ''"
+                    class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-r-md">&raquo;</a>
+            </nav>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title th:text="${account.accountId == null} ? 'Thêm tài khoản' : 'Sửa tài khoản'">Tài khoản</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-8">
+        <h1 class="text-2xl font-bold mb-6"
+            th:text="${account.accountId == null} ? 'Thêm tài khoản mới' : 'Sửa tài khoản'"></h1>
+        <form
+            th:action="${account.accountId == null} ? @{/admin/accounts/new} : @{/admin/accounts/edit/{id}(id=${account.accountId})}"
+            th:object="${account}" method="post" class="space-y-6">
+            <div th:if="${errorMessage}" class="bg-red-100 text-red-700 px-4 py-2 rounded">[[${errorMessage}]]</div>
+            <div th:if="${successMessage}" class="bg-green-100 text-green-700 px-4 py-2 rounded">[[${successMessage}]]
+            </div>
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username <span
+                        class="text-red-500">*</span></label>
+                <input type="text" id="username" th:field="*{username}"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email <span
+                        class="text-red-500">*</span></label>
+                <input type="email" id="email" th:field="*{email}"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password <span
+                        th:if="${account.accountId == null}" class="text-red-500">*</span></label>
+                <input type="password" id="password" th:field="*{password}"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+                    th:required="${account.accountId == null}" autocomplete="new-password" />
+                <small th:if="${account.accountId != null}" class="text-gray-500">Để trống nếu không muốn đổi mật
+                    khẩu</small>
+            </div>
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Role <span
+                        class="text-red-500">*</span></label>
+                <select id="role" th:field="*{role}"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${account.role == r}">
+                    </option>
+                </select>
+            </div>
+            <div>
+                <label for="provider" class="block text-sm font-medium text-gray-700">Provider</label>
+                <select id="provider" th:field="*{provider}"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md">
+                    <option value="">LOCAL</option>
+                    <option th:each="p : ${providers}" th:value="${p}" th:text="${p}"
+                        th:selected="${account.provider == p}"></option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-4">
+                <a th:href="@{/admin/accounts}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Huỷ</a>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Lưu</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

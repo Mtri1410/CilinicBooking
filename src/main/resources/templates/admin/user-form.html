@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>User Form</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6"
+            th:text="${user.userId == null ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}"></h1>
+        <form th:action="${user.userId == null} ? @{/admin/users/new} : @{/admin/users/edit/{id}(id=${user.userId})}"
+            method="post" class="space-y-6">
+            <div>
+                <label for="fullName" class="block text-sm font-medium text-gray-700">Họ tên</label>
+                <input type="text" id="fullName" name="fullName" th:value="${user.fullName}" required
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full" />
+            </div>
+            <div>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" th:value="${user.phoneNumber}" required
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full" />
+            </div>
+            <div>
+                <label for="address" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+                <input type="text" id="address" name="address" th:value="${user.address}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full" />
+            </div>
+            <div>
+                <label for="note" class="block text-sm font-medium text-gray-700">Note</label>
+                <input type="text" id="note" name="note" th:value="${user.note}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full" />
+            </div>
+            <div>
+                <label for="followup" class="block text-sm font-medium text-gray-700">Followup</label>
+                <input type="number" id="followup" name="followup" th:value="${user.followup}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full" />
+            </div>
+            <div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Lưu</button>
+                <a th:href="@{/admin/users}" class="ml-4 text-gray-600 hover:text-gray-900">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

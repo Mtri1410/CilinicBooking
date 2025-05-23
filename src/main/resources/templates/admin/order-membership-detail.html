@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Chi tiết đăng ký membership</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-8">
+        <h1 class="text-2xl font-bold mb-6">Chi tiết đăng ký membership</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <div class="mb-3"><span class="font-semibold">ID:</span> <span th:text="${order.id}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Tên bác sĩ:</span> <span
+                        th:text="${order.doctor.fullname}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Membership:</span> <span
+                        th:text="${order.membership.name}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Tổng giá:</span> <span
+                        th:text="${#numbers.formatCurrency(order.totalprice)}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Số lượng:</span> <span th:text="${order.count}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Trạng thái:</span> <span th:text="${order.status}"></span>
+                </div>
+                <div class="mb-3"><span class="font-semibold">Ngày tạo:</span> <span
+                        th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}"></span></div>
+            </div>
+            <div>
+                <div class="mb-3"><span class="font-semibold">Họ tên bác sĩ:</span> <span
+                        th:text="${order.doctor.fullname}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Chuyên khoa:</span> <span
+                        th:text="${order.doctor.specialty}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Số GPHN:</span> <span
+                        th:text="${order.doctor.license}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Số điện thoại:</span> <span
+                        th:text="${order.doctor.phoneNumber}"></span></div>
+                <div class="mb-3"><span class="font-semibold">Email:</span> <span
+                        th:text="${order.doctor.account.email}"></span></div>
+            </div>
+        </div>
+        <div class="mt-8 flex justify-end">
+            <a th:href="@{/admin/partners(tab='orders')}" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Quay
+                lại danh sách</a>
+        </div>
+    </div>
+</body>
+
+</html>

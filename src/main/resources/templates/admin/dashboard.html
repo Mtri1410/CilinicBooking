@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Dashboard</title>
+    <!-- Page-specific head elements can go here -->
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to the Admin Dashboard</h1>
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Tổng số người dùng -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-blue-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 10-8 0 4 4 0 008 0zm6 4v2a2 2 0 01-2 2h-4a2 2 0 01-2-2v-2a2 2 0 012-2h4a2 2 0 012 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Tổng số người dùng</h3>
+                <p class="text-4xl font-bold text-blue-600" th:text="${totalUsers}">0</p>
+                <p class="text-sm text-gray-500 mt-1">Tất cả bệnh nhân đã đăng ký</p>
+            </div>
+            <!-- Tổng số tài khoản -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Tổng số tài khoản</h3>
+                <p class="text-4xl font-bold text-indigo-600" th:text="${totalAccounts}">0</p>
+                <p class="text-sm text-gray-500 mt-1">Tài khoản hệ thống (bệnh nhân, bác sĩ, admin)</p>
+            </div>
+            <!-- Đối tác cần duyệt -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-purple-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 11c0-1.657 1.343-3 3-3s3 1.343 3 3-1.343 3-3 3-3-1.343-3-3zm-6 8v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Đối tác chờ duyệt</h3>
+                <p class="text-4xl font-bold text-purple-600" th:text="${partnersPending}">0</p>
+                <p class="text-sm text-gray-500 mt-1">Bác sĩ/đối tác đăng ký mới cần duyệt</p>
+            </div>
+            <!-- Order Membership cần duyệt -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-pink-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 17v-2a4 4 0 014-4h4a4 4 0 014 4v2M9 17H5a2 2 0 01-2-2v-2a2 2 0 012-2h4a2 2 0 012 2v2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Order Membership chờ duyệt</h3>
+                <p class="text-4xl font-bold text-pink-600" th:text="${ordersPending}">0</p>
+                <p class="text-sm text-gray-500 mt-1">Đơn đăng ký/nâng cấp membership cần duyệt</p>
+            </div>
+            <!-- Tổng doanh thu đã duyệt -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 0V4m0 7v7m0 0h4m-4 0H8" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Tổng doanh thu đã duyệt</h3>
+                <p class="text-4xl font-bold text-green-600"
+                    th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' ₫'}">0 ₫</p>
+                <p class="text-sm text-gray-500 mt-1">Tổng doanh thu từ các order membership đã duyệt</p>
+            </div>
+            <!-- Đánh giá chờ duyệt -->
+            <div class="bg-white shadow-lg rounded-xl p-6 text-center hover:shadow-xl transition-shadow duration-300">
+                <div class="flex justify-center mb-2">
+                    <svg class="w-10 h-10 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l2.036 6.29a1 1 0 00.95.69h6.631c.969 0 1.371 1.24.588 1.81l-5.37 3.905a1 1 0 00-.364 1.118l2.036 6.29c.3.921-.755 1.688-1.54 1.118l-5.37-3.905a1 1 0 00-1.176 0l-5.37 3.905c-.784.57-1.838-.197-1.54-1.118l2.036-6.29a1 1 0 00-.364-1.118l-5.37-3.905c-.783-.57-.38-1.81.588-1.81h6.631a1 1 0 00.95-.69l2.036-6.29z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Đánh giá chờ duyệt</h3>
+                <p class="text-4xl font-bold text-yellow-600" th:text="${pendingReviews}">0</p>
+                <p class="text-sm text-gray-500 mt-1">Số lượng đánh giá đang chờ phê duyệt</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

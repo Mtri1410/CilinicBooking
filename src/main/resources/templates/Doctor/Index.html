@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <title>Hello Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="Doctor/_Layout">
+  <body >
+    <div layout:fragment="content" id="page-content-wrapper">
+
+    <div class="container-fluid px-4 ">
+        <div class="row g-3 my-2">
+            <div class="my-4">
+                <form class="row g-3 align-items-end">
+                <!-- Ngày bắt đầu -->
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Chọn ngày bắt đầu</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate">
+                </div>
+                 <div class="col-md-3">
+                    <label for="endDate" class="form-label">Chọn ngày kết thúc</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate">
+                </div>
+
+                <!-- Khoảng thời gian -->
+                <!-- <div class="col-md-2">
+                    <label for="duration" class="form-label">Khoảng thời gian</label>
+                    <select class="form-select" id="duration" name="duration">
+                    <option selected disabled>Chọn khoảng thời gian</option>
+                    <option value="1d">1 ngày</option>
+                    <option value="3d">3 ngày</option>
+                    <option value="1w">1 tuần</option>
+                    <option value="2w">2 tuần</option>
+                    <option value="1m">1 tháng</option>
+                    <option value="3m">3 tháng</option>
+                    <option value="6m">6 tháng</option>
+                    <option value="1y">1 năm</option>
+                    </select>
+                </div> -->
+                <div class="col-md-2">
+                    <label for="duration" class="form-label">Thống kê theo</label>
+                    <select class="form-select" id="type" name="type">               
+                    <option >Doanh thu</option>
+                    <option >Sản phẩm</option>
+                    </select>
+                </div>
+                <!-- Nút thống kê -->
+                <div class="col-md-2">
+                    <button type="button" id="btnShow" class="btn btn-primary w-100">Thống kê</button>
+                </div>
+                </form>
+            </div>
+        </div>
+        <div class="row g-3 my-2">
+            <div class="my-4">
+                <button id="btnChart" class="btn btn-primary me-2" onclick="showChart()">Thống kê biểu đồ</button>
+                <button id="btnTable" class="btn btn-outline-secondary" onclick="showTable()">Thống kê bảng</button>
+            </div>
+        </div>
+
+        <div id="tableSection_revenue" style="display: none;">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm sản phẩm..." onkeyup="if(event.key === 'Enter') onSearch()">
+                <button class="btn btn-primary" onclick="onSearchProduct()">Tìm</button>
+            </div>
+            <br>
+            <table class="table table-striped" id="productRevenueTable">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Số lượng</th>
+                        <th>Doanh thu</th>
+                        <th>Ngày</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Thêm dòng nếu cần -->
+                </tbody>
+            </table>
+            <div id="productPagination"></div>
+        </div>
+        
+        <div id="tableSection" style="display:none;">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm sản phẩm..." onkeyup="if(event.key === 'Enter') onSearch()">
+                <button class="btn btn-primary" onclick="onSearchRevenue()">Tìm</button>
+            </div>
+            <br>
+            <div>
+            <table class="table table-striped"  id="revenueTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Doanh thu</th>
+                        <th>Ngày đặt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="paginationRevenue"></div>
+            </div>
+        </div>
+        <div class="container" id="chartSection">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    </div>
+    <div layout:fragment="scripts">
+        <script src="/js/doctor_dashboard.js"></script>
+    </div>
+</body>
+</html>

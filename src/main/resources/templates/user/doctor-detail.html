@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết bác sĩ - ClinicBooking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-3 flex items-center justify-between">
+            <a th:href="@{/}" class="text-blue-600 text-2xl font-bold flex items-center">
+                <i class="fas fa-clinic-medical mr-2"></i>ClinicBooking
+            </a>
+            <div class="flex items-center gap-4">
+                <a th:href="@{/doctors-menu}" class="text-gray-700 hover:text-blue-600 font-semibold flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại danh sách
+                </a>
+                <!-- Nút giỏ hàng trên navbar -->
+                <button id="openCartBtnNav"
+                    class="relative bg-green-600 text-white rounded-full p-2 hover:bg-green-700 flex items-center">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count-nav"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 min-w-[20px] text-center">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="container mx-auto px-4 py-10 flex justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                <div class="flex-shrink-0">
+                    <img th:src="${doctor.image != null && !#strings.isEmpty(doctor.image) ? '/images/doctors/' + doctor.image : 'https://via.placeholder.com/200x200?text=No+Image'}"
+                        alt="Ảnh bác sĩ" class="w-48 h-48 object-cover rounded-full border-4 border-blue-200 shadow-md">
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2"
+                        th:text="${doctor.fullname != null ? doctor.fullname : 'Chưa cập nhật tên'}">Tên bác sĩ</h2>
+                    <p class="text-blue-600 text-lg font-semibold mb-2"
+                        th:text="${doctor.specialty != null ? doctor.specialty : 'Chưa cập nhật chuyên khoa'}">Chuyên
+                        khoa</p>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>
+                            <span th:text="${doctor.address != null ? doctor.address : 'Chưa cập nhật địa chỉ'}">Chưa
+                                cập nhật địa chỉ</span>
+                        </p>
+                        <p class="text-gray-600"><i class="fas fa-graduation-cap mr-2"></i>
+                            <span th:text="${doctor.license != null ? doctor.license : 'Chưa cập nhật bằng cấp'}">Chưa
+                                cập nhật bằng cấp</span>
+                        </p>
+                        <p class="text-gray-600"><i class="fas fa-phone-alt mr-2"></i>
+                            <span
+                                th:text="${doctor.phoneNumber != null ? doctor.phoneNumber : 'Chưa cập nhật số điện thoại'}">Chưa
+                                cập nhật số điện thoại</span>
+                        </p>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <a th:href="@{/doctors-menu}"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                            <i class="fas fa-list mr-2"></i>Danh sách bác sĩ
+                        </a>
+                        <button id="openBookingModal"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                            <i class="fas fa-calendar-plus mr-2"></i>Đặt lịch
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Kinh nghiệm làm việc -->
+            <div class="mt-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-briefcase mr-2"></i>Kinh nghiệm làm việc
+                </h3>
+                <div id="exp-content" class="text-gray-700 whitespace-pre-line overflow-hidden"
+                    style="max-height: 7.5em;">
+                    <span th:text="${doctor.experience != null ? doctor.experience : 'Chưa cập nhật kinh nghiệm'}">Chưa
+                        cập nhật kinh nghiệm</span>
+                </div>
+                <button id="exp-toggle" class="mt-2 text-blue-600 hover:underline hidden">Xem thêm</button>
+            </div>
+            <!-- Giới thiệu/Sản phẩm/Dịch vụ -->
+            <div class="mt-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-user-md mr-2"></i>Giới thiệu & Sản phẩm/Dịch vụ
+                </h3>
+                <div class="bg-gray-50 rounded-lg p-4 text-gray-700">
+                    <p>
+                        <!-- Thay đoạn này bằng trường giới thiệu/sản phẩm thực tế nếu có -->
+                        Bác sĩ có nhiều năm kinh nghiệm trong lĩnh vực <span th:text="${doctor.specialty}">Chuyên
+                            khoa</span>. Chuyên tư vấn, khám và điều trị các bệnh lý liên quan. <br>
+                        <span class="font-semibold">Sản phẩm/Dịch vụ nổi bật:</span>
+                    </p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Khám tổng quát sức khỏe</li>
+                        <li>Tư vấn điều trị chuyên sâu</li>
+                        <li>Chăm sóc sau điều trị</li>
+                        <!-- Có thể thêm động các sản phẩm/dịch vụ từ DB -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Sản phẩm/dịch vụ nếu là premium -->
+            <div th:if="${doctor.membership != null and doctor.membership.name == 'premium'}" class="mt-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-box-open mr-2"></i>Sản phẩm/Dịch vụ của bác sĩ
+                </h3>
+                <div class="mb-4 flex flex-wrap gap-4 items-end">
+                    <input id="product-search" type="text" placeholder="Tìm kiếm sản phẩm..."
+                        class="border px-3 py-2 rounded w-64" />
+                    <select id="product-sort" class="border px-3 py-2 rounded">
+                        <option value="name">Sắp xếp theo tên</option>
+                        <option value="price-asc">Giá tăng dần</option>
+                        <option value="price-desc">Giá giảm dần</option>
+                    </select>
+                    <input id="price-min" type="number" placeholder="Giá từ" class="border px-3 py-2 rounded w-24" />
+                    <input id="price-max" type="number" placeholder="Đến" class="border px-3 py-2 rounded w-24" />
+                    <button id="product-filter"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Lọc</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white rounded shadow">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2">Tên sản phẩm</th>
+                                <th class="px-4 py-2">Ảnh</th>
+                                <th class="px-4 py-2">Giá</th>
+                                <th class="px-4 py-2">Mô tả</th>
+                                <th class="px-4 py-2">Số lượng còn</th>
+                                <th class="px-4 py-2">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-list">
+                            <!-- Sản phẩm sẽ được render bằng JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="product-empty" class="text-center text-gray-500 py-6 hidden">Không có sản phẩm phù hợp.</div>
+            </div>
+            <!-- Bình luận & Đánh giá -->
+            <div class="mt-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-comments mr-2"></i>Bình luận & Đánh giá
+                </h3>
+                <!-- Form bình luận -->
+                <form id="review-form" class="bg-white rounded-lg shadow p-4 mb-4">
+                    <div class="flex items-center mb-2">
+                        <span class="mr-2 text-gray-700">Đánh giá:</span>
+                        <div id="star-rating" class="flex text-yellow-400 cursor-pointer">
+                            <i class="far fa-star" data-value="1"></i>
+                            <i class="far fa-star" data-value="2"></i>
+                            <i class="far fa-star" data-value="3"></i>
+                            <i class="far fa-star" data-value="4"></i>
+                            <i class="far fa-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    <textarea id="review-comment" class="w-full border rounded p-2 mb-2" rows="2"
+                        placeholder="Nhập bình luận của bạn..."></textarea>
+                    <button id="review-submit" type="button"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Gửi bình luận</button>
+                </form>
+                <!-- Danh sách bình luận động -->
+                <div id="review-list" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal đặt lịch -->
+    <div id="bookingModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+            <button id="closeBookingModal"
+                class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center"><i
+                    class="fas fa-calendar-alt mr-2"></i>Đặt lịch khám</h3>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-1 font-semibold">Chọn ngày</label>
+                    <input type="date" class="w-full border rounded px-3 py-2" min="{{today}}" id="bookingDate"
+                        required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-1 font-semibold">Chọn ca khám</label>
+                    <select id="bookingSlot" class="w-full border rounded px-3 py-2" required>
+                        <option value="">-- Chọn ca --</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-1 font-semibold">Phương thức thanh toán</label>
+                    <div>
+                        <label class="mr-4"><input type="radio" name="booking-payment-method" value="cod" checked> Thanh
+                            toán khi khám (COD)</label>
+                        <label><input type="radio" name="booking-payment-method" value="vnpay"> QR code VNPAY (đặt
+                            cọc)</label>
+                    </div>
+                </div>
+                <input type="hidden" id="doctorId" th:value="${doctor.doctorId}" />
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold text-lg flex items-center justify-center">
+                    <i class="fas fa-credit-card mr-2"></i>Thanh toán & Đặt lịch
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- Nút mở giỏ hàng -->
+    <button id="openCartBtn"
+        class="fixed bottom-8 right-8 bg-green-600 text-white rounded-full shadow-lg p-4 hover:bg-green-700 z-50 flex items-center">
+        <i class="fas fa-shopping-cart mr-2"></i> <span id="cart-count">0</span>
+    </button>
+    <!-- Modal giỏ hàng -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+            <button id="closeCartBtn"
+                class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center"><i
+                    class="fas fa-shopping-cart mr-2"></i>Giỏ hàng</h3>
+            <div id="cart-list"></div>
+            <div class="mt-4 flex flex-col gap-2">
+                <span class="font-semibold text-lg">Tổng tiền:</span>
+                <span class="text-green-700 font-bold text-2xl" id="cart-total">0 ₫</span>
+                <div class="mt-2">
+                    <label class="mr-4"><input type="radio" name="payment-method" value="cod" checked> Thanh toán khi
+                        nhận hàng (COD)</label>
+                    <label><input type="radio" name="payment-method" value="vnpay"> QR code VNPAY</label>
+                </div>
+            </div>
+            <button id="checkoutBtn"
+                class="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold text-lg flex items-center justify-center">
+                <i class="fas fa-credit-card mr-2"></i>Thanh toán
+            </button>
+        </div>
+    </div>
+    <script>
+        // Script ẩn/hiện kinh nghiệm nếu quá dài
+        document.addEventListener('DOMContentLoaded', function () {
+            var expContent = document.getElementById('exp-content');
+            var expToggle = document.getElementById('exp-toggle');
+            if (expContent && expContent.scrollHeight > expContent.clientHeight + 5) {
+                expToggle.classList.remove('hidden');
+                var expanded = false;
+                expToggle.addEventListener('click', function () {
+                    expanded = !expanded;
+                    if (expanded) {
+                        expContent.style.maxHeight = 'none';
+                        expToggle.textContent = 'Thu gọn';
+                    } else {
+                        expContent.style.maxHeight = '7.5em';
+                        expToggle.textContent = 'Xem thêm';
+                    }
+                });
+            }
+        });
+        // Modal logic
+        const openBtn = document.getElementById('openBookingModal');
+        const closeBtn = document.getElementById('closeBookingModal');
+        const modal = document.getElementById('bookingModal');
+        openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+        // Set min date to today
+        document.addEventListener('DOMContentLoaded', function () {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').setAttribute('min', today);
+        });
+        // Dynamic slot loading
+        document.getElementById('bookingDate').addEventListener('change', function () {
+            var doctorId = document.getElementById('doctorId').value;
+            var date = this.value;
+            var slotSelect = document.getElementById('bookingSlot');
+            // Danh sách ca cố định
+            var allSlots = [
+                { value: '07:00-08:30', label: 'Sáng: 07:00 - 08:30' },
+                { value: '08:30-10:00', label: 'Sáng: 08:30 - 10:00' },
+                { value: '10:00-11:30', label: 'Sáng: 10:00 - 11:30' },
+                { value: '13:00-14:30', label: 'Chiều: 13:00 - 14:30' },
+                { value: '14:30-16:00', label: 'Chiều: 14:30 - 16:00' },
+                { value: '16:00-17:30', label: 'Chiều: 16:00 - 17:30' }
+            ];
+            slotSelect.innerHTML = '<option value="">Đang tải...</option>';
+            fetch(`/api/doctor/${doctorId}/booked-slots?date=${date}`)
+                .then(res => res.json())
+                .then(booked => {
+                    slotSelect.innerHTML = '<option value="">-- Chọn ca --</option>';
+                    allSlots.forEach(slot => {
+                        var disabled = booked.includes(slot.value) ? 'disabled' : '';
+                        slotSelect.innerHTML += `<option value="${slot.value}" ${disabled}>${slot.label}${disabled ? ' (Đã đặt)' : ''}</option>`;
+                    });
+                })
+                .catch(() => {
+                    slotSelect.innerHTML = '<option disabled>Lỗi tải ca khám</option>';
+                });
+        });
+        // Đặt lịch khi bấm nút
+        document.querySelector('#bookingModal form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var doctorId = document.getElementById('doctorId').value;
+            var date = document.getElementById('bookingDate').value;
+            var slot = document.getElementById('bookingSlot').value;
+            var paymentMethod = document.querySelector('input[name="booking-payment-method"]:checked').value;
+            if (!date || !slot) {
+                showToast('Vui lòng chọn ngày và ca khám!', 'error');
+                return;
+            }
+            var [startTime, endTime] = slot.split('-');
+            // Định dạng lại cho đúng chuẩn ISO
+            startTime = startTime.trim() + ':00';
+            endTime = endTime.trim() + ':00';
+            if (paymentMethod === 'cod') {
+                fetch(`/api/doctor/${doctorId}/book-slot`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        date: date,
+                        startTime: startTime,
+                        endTime: endTime
+                    })
+                })
+                    .then(res => {
+                        if (res.status === 401) {
+                            showToast('Vui lòng đăng nhập để đặt lịch!', 'error');
+                            setTimeout(() => window.location.href = '/SignIn', 1500);
+                            throw new Error('UNAUTHORIZED');
+                        }
+                        if (res.ok) return res.text();
+                        return res.text().then(msg => { throw new Error(msg); });
+                    })
+                    .then(msg => {
+                        showToast(msg, 'success');
+                        document.getElementById('bookingModal').classList.add('hidden');
+                        this.reset();
+                    })
+                    .catch(err => {
+                        if (err.message !== 'UNAUTHORIZED')
+                            showToast('Đặt lịch thất bại: ' + err.message, 'error');
+                    });
+            } else if (paymentMethod === 'vnpay') {
+                fetch(`/api/doctor/${doctorId}/book-slot-vnpay`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        date: date,
+                        startTime: startTime,
+                        endTime: endTime
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            showToast('Không nhận được URL thanh toán VNPAY!', 'error');
+                        }
+                    })
+                    .catch(err => showToast('Thanh toán đặt cọc VNPAY thất bại: ' + err.message, 'error'));
+            }
+        });
+        let allProducts = [];
+        let cart = [];
+        function renderProducts(list) {
+            const tbody = document.getElementById('product-list');
+            const empty = document.getElementById('product-empty');
+            tbody.innerHTML = '';
+            if (!list.length) {
+                empty.classList.remove('hidden');
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+            list.forEach(p => {
+                tbody.innerHTML += `<tr>
+                    <td class='px-4 py-2'>${p.name}</td>
+                    <td class='px-4 py-2'>${p.image ? `<img src='${p.image}' alt='Ảnh' class='w-16 h-16 object-cover rounded'/>` : ''}</td>
+                    <td class='px-4 py-2 text-green-700 font-semibold'>${p.price.toLocaleString()} ₫</td>
+                    <td class='px-4 py-2'>${p.description || ''}</td>
+                    <td class='px-4 py-2'>${p.count}</td>
+                    <td class='px-4 py-2'>
+                        <button onclick='addToCart(${JSON.stringify(p)})' class='bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700'>Thêm vào giỏ</button>
+                    </td>
+                </tr>`;
+            });
+        }
+        function filterAndRender() {
+            let q = document.getElementById('product-search').value.toLowerCase();
+            let sort = document.getElementById('product-sort').value;
+            let min = parseInt(document.getElementById('price-min').value) || 0;
+            let max = parseInt(document.getElementById('price-max').value) || 999999999;
+            let filtered = allProducts.filter(p =>
+                (!q || p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))) &&
+                p.price >= min && p.price <= max
+            );
+            if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+            renderProducts(filtered);
+        }
+        document.getElementById('product-search').addEventListener('input', filterAndRender);
+        document.getElementById('product-sort').addEventListener('change', filterAndRender);
+        document.getElementById('product-filter').addEventListener('click', filterAndRender);
+        // Load sản phẩm từ API
+        document.addEventListener('DOMContentLoaded', function () {
+            const doctorId = document.getElementById('doctorId') ? document.getElementById('doctorId').value : null;
+            if (!doctorId) return;
+            fetch(`/api/doctor/${doctorId}/products`)
+                .then(res => res.json())
+                .then(data => {
+                    allProducts = data;
+                    filterAndRender();
+                });
+        });
+        // Thêm vào giỏ hàng
+        function addToCart(product) {
+            let idx = cart.findIndex(p => p.productId === product.productId);
+            if (idx >= 0) {
+                cart[idx].quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            alert('Đã thêm vào giỏ hàng!');
+            updateCartUI();
+        }
+        // Giỏ hàng UI
+        function updateCartUI() {
+            document.getElementById('cart-count').textContent = cart.reduce((sum, p) => sum + p.quantity, 0);
+            const navCount = document.getElementById('cart-count-nav');
+            if (navCount) navCount.textContent = cart.reduce((sum, p) => sum + p.quantity, 0);
+            const cartList = document.getElementById('cart-list');
+            if (!cart.length) {
+                cartList.innerHTML = '<div class="text-center text-gray-500 py-6">Giỏ hàng trống.</div>';
+                document.getElementById('cart-total').textContent = '0 ₫';
+                return;
+            }
+            let total = 0;
+            cartList.innerHTML = '<table class="w-full text-sm"><thead><tr><th>Tên</th><th>SL</th><th>Giá</th><th></th></tr></thead><tbody>' +
+                cart.map((p, i) => {
+                    total += p.price * p.quantity;
+                    return `<tr>
+                        <td>${p.name}</td>
+                        <td><input type='number' min='1' value='${p.quantity}' style='width:50px' onchange='updateQty(${i}, this.value)' class='border rounded px-1'/></td>
+                        <td>${(p.price * p.quantity).toLocaleString()} ₫</td>
+                        <td><button onclick='removeFromCart(${i})' class='text-red-600 hover:underline'>Xóa</button></td>
+                    </tr>`;
+                }).join('') + '</tbody></table>';
+            document.getElementById('cart-total').textContent = total.toLocaleString() + ' ₫';
+        }
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            updateCartUI();
+        }
+        function updateQty(idx, val) {
+            val = parseInt(val);
+            if (val > 0) cart[idx].quantity = val;
+            updateCartUI();
+        }
+        // Thêm biến kiểm tra đăng nhập (giả sử có biến userId hoặc lấy từ server, nếu không có thì là chưa đăng nhập)
+        let isLoggedIn = !!document.getElementById('doctorId'); // Có thể thay bằng kiểm tra cookie/token thực tế nếu có
+
+        // Sự kiện mở modal giỏ hàng từ navbar
+        const openCartBtnNav = document.getElementById('openCartBtnNav');
+        if (openCartBtnNav) {
+            openCartBtnNav.onclick = () => {
+                document.getElementById('cartModal').classList.remove('hidden');
+                updateCartUI();
+                if (!isLoggedIn) {
+                    showToast('Vui lòng đăng nhập để sử dụng giỏ hàng!', 'error');
+                    setTimeout(() => window.location.href = '/SignIn', 1500);
+                }
+            };
+        }
+        // Sự kiện mở modal giỏ hàng từ nút nổi
+        document.getElementById('openCartBtn').onclick = () => {
+            document.getElementById('cartModal').classList.remove('hidden');
+            updateCartUI();
+            if (!isLoggedIn) {
+                showToast('Vui lòng đăng nhập để sử dụng giỏ hàng!', 'error');
+                setTimeout(() => window.location.href = '/SignIn', 1500);
+            }
+        };
+        // Thanh toán
+        document.getElementById('checkoutBtn').onclick = function () {
+            if (!cart.length) return showToast('Giỏ hàng trống!', 'error');
+            const method = document.querySelector('input[name="payment-method"]:checked').value;
+            if (method === 'cod') {
+                fetch('/api/cart/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                })
+                    .then(res => {
+                        if (res.status === 401) {
+                            showToast('Vui lòng đăng nhập để thanh toán!', 'error');
+                            setTimeout(() => window.location.href = '/SignIn', 1500);
+                            throw new Error('UNAUTHORIZED');
+                        }
+                        if (res.ok) return res.text();
+                        return res.text().then(msg => { throw new Error(msg); });
+                    })
+                    .then(msg => {
+                        showToast(msg, 'success');
+                        cart = [];
+                        updateCartUI();
+                        document.getElementById('cartModal').classList.add('hidden');
+                    })
+                    .catch(err => {
+                        if (err.message !== 'UNAUTHORIZED')
+                            showToast('Thanh toán thất bại: ' + err.message, 'error');
+                    });
+            } else if (method === 'vnpay') {
+                fetch('/api/cart/checkout-vnpay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.url) {
+                            window.location.href = data.url;
+                        } else {
+                            showToast('Không nhận được URL thanh toán VNPAY!', 'error');
+                        }
+                    })
+                    .catch(err => showToast('Thanh toán VNPAY thất bại: ' + err.message, 'error'));
+            }
+        };
+        // ==== Review/Rating JS động ====
+        function renderStars(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                html += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
+            }
+            return html;
+        }
+        // Star rating chọn
+        let selectedRating = 5;
+        const starEls = document.querySelectorAll('#star-rating i');
+        starEls.forEach(star => {
+            star.addEventListener('mouseenter', function () {
+                const val = +this.getAttribute('data-value');
+                starEls.forEach((s, i) => {
+                    s.className = (i < val ? 'fas' : 'far') + ' fa-star';
+                });
+            });
+            star.addEventListener('mouseleave', function () {
+                starEls.forEach((s, i) => {
+                    s.className = (i < selectedRating ? 'fas' : 'far') + ' fa-star';
+                });
+            });
+            star.addEventListener('click', function () {
+                selectedRating = +this.getAttribute('data-value');
+                starEls.forEach((s, i) => {
+                    s.className = (i < selectedRating ? 'fas' : 'far') + ' fa-star';
+                });
+            });
+        });
+        // Gửi review
+        document.getElementById('review-submit').onclick = function () {
+            const comment = document.getElementById('review-comment').value.trim();
+            const doctorId = document.getElementById('doctorId').value;
+            if (!comment) return showToast('Vui lòng nhập bình luận!', 'error');
+            fetch(`/api/doctor/${doctorId}/review`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: selectedRating, comment })
+            })
+                .then(res => res.ok ? res.text() : res.text().then(msg => { throw new Error(msg); }))
+                .then(msg => {
+                    showToast(msg, 'success');
+                    document.getElementById('review-comment').value = '';
+                    selectedRating = 5;
+                    starEls.forEach((s, i) => { s.className = (i < 5 ? 'fas' : 'far') + ' fa-star'; });
+                    loadReviews();
+                })
+                .catch(err => showToast('Gửi bình luận thất bại: ' + err.message, 'error'));
+        };
+        // Load danh sách review
+        function loadReviews() {
+            const doctorId = document.getElementById('doctorId').value;
+            fetch(`/api/doctor/${doctorId}/reviews`)
+                .then(res => res.json())
+                .then(reviews => {
+                    const container = document.getElementById('review-list');
+                    if (!reviews.length) {
+                        container.innerHTML = '<div class="text-gray-500 text-center">Chưa có đánh giá nào.</div>';
+                        return;
+                    }
+                    container.innerHTML = reviews.map(r => `
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="flex items-center mb-1">
+                                <span class="font-semibold text-gray-800 mr-2">${r.username}</span>
+                                <div class="flex text-yellow-400 text-sm">${renderStars(r.rating)}</div>
+                            </div>
+                            <p class="text-gray-700">${r.comment}</p>
+                            <span class="text-xs text-gray-400">${new Date(r.createdAt).toLocaleString('vi-VN')}</span>
+                        </div>
+                    `).join('');
+                });
+        }
+        document.addEventListener('DOMContentLoaded', loadReviews);
+        // Toast notification
+        function showToast(msg, type) {
+            let toast = document.createElement('div');
+            toast.className = 'fixed top-6 right-6 z-50 px-4 py-2 rounded shadow-lg text-white ' + (type === 'success' ? 'bg-green-600' : 'bg-red-600');
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        // Đóng modal giỏ hàng khi bấm nút X
+        document.getElementById('closeCartBtn').onclick = function () {
+            document.getElementById('cartModal').classList.add('hidden');
+        };
+        // Đóng modal khi click ra ngoài (nền đen)
+        document.getElementById('cartModal').addEventListener('click', function (e) {
+            if (e.target === this) this.classList.add('hidden');
+        });
+        // Ẩn nút thanh toán nếu chưa đăng nhập
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!isLoggedIn) {
+                document.getElementById('checkoutBtn').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

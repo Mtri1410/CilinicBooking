@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Manage Partners</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Quản lý đối tác</h1>
+        <!-- Tabs -->
+        <div class="mb-6">
+            <ul class="flex border-b" id="partnersTab">
+                <li class="-mb-px mr-2">
+                    <a th:href="@{/admin/partners}"
+                        th:classappend="${tab} != 'orders' ? 'border-l border-t border-r rounded-t text-blue-700 font-semibold bg-white' : 'text-gray-600'"
+                        class="tab-link inline-block py-2 px-4">Quản lý bác sĩ</a>
+                </li>
+                <li class="mr-2">
+                    <a th:href="@{/admin/partners(tab='orders')}"
+                        th:classappend="${tab} == 'orders' ? 'border-l border-t border-r rounded-t text-blue-700 font-semibold bg-white' : 'text-gray-600'"
+                        class="tab-link inline-block py-2 px-4">Quản lý order_membership</a>
+                </li>
+            </ul>
+        </div>
+        <!-- Tab Content -->
+        <div id="tab-doctors-content" th:if="${tab} != 'orders'">
+            <!-- Thông báo -->
+            <div th:if="${successMessage}" class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+                [[${successMessage}]]</div>
+            <div th:if="${errorMessage}" class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">[[${errorMessage}]]
+            </div>
+            <!-- Filter/Search/Sort/PageSize Form -->
+            <form method="get" th:action="@{/admin/partners}" class="flex flex-wrap gap-4 mb-6 items-end"
+                id="filterForm">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700">Tìm kiếm Họ tên</label>
+                    <input type="text" id="search" name="search" th:value="${search}" placeholder="Nhập họ tên..."
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        autocomplete="off" />
+                </div>
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700">Lọc theo trạng thái</label>
+                    <select id="status" name="status" th:value="${status}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option value="">Tất cả</option>
+                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                            th:selected="${status == s.name()}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortField" class="block text-sm font-medium text-gray-700">Sắp xếp theo</label>
+                    <select id="sortField" name="sortField" th:value="${sortField}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option value="doctorId" th:selected="${sortField == 'doctorId'}">ID</option>
+                        <option value="fullname" th:selected="${sortField == 'fullname'}">Họ tên</option>
+                        <option value="specialty" th:selected="${sortField == 'specialty'}">Chuyên khoa</option>
+                        <option value="status" th:selected="${sortField == 'status'}">Trạng thái</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortDir" class="block text-sm font-medium text-gray-700">Chiều</label>
+                    <select id="sortDir" name="sortDir" th:value="${sortDir}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
+                        <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="size" class="block text-sm font-medium text-gray-700">Số dòng/trang</label>
+                    <select id="size" name="size" th:value="${doctorsPage.size}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('filterForm').submit()">
+                        <option th:value="10" th:selected="${doctorsPage.size == 10}">10</option>
+                        <option th:value="20" th:selected="${doctorsPage.size == 20}">20</option>
+                        <option th:value="50" th:selected="${doctorsPage.size == 50}">50</option>
+                        <option th:value="100" th:selected="${doctorsPage.size == 100}">100</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Lọc</button>
+                </div>
+            </form>
+            <script>
+                // Debounce search input
+                let searchTimeout;
+                document.getElementById('search').addEventListener('input', function () {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function () {
+                        document.getElementById('filterForm').submit();
+                    }, 500);
+                });
+            </script>
+            <div class="flex items-center justify-between mt-2 mb-2"
+                th:if="${doctorsPage != null && doctorsPage.totalElements > 0}">
+                <div class="text-sm text-gray-600">
+                    Hiển thị <span th:text="${doctorsPage.number * doctorsPage.size + 1}"></span>–<span
+                        th:text="${doctorsPage.number * doctorsPage.size + doctorsPage.numberOfElements}"></span> trên
+                    tổng <span th:text="${doctorsPage.totalElements}"></span> bác sĩ
+                </div>
+            </div>
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+                <table class="w-full text-left table-auto">
+                    <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                        <tr>
+                            <th class="px-4 py-3 font-semibold">ID</th>
+                            <th class="px-4 py-3 font-semibold">Họ tên</th>
+                            <th class="px-4 py-3 font-semibold">Chuyên khoa</th>
+                            <th class="px-4 py-3 font-semibold">Địa chỉ</th>
+                            <th class="px-4 py-3 font-semibold">Số GPHN</th>
+                            <th class="px-4 py-3 font-semibold">Giới tính</th>
+                            <th class="px-4 py-3 font-semibold">Số điện thoại</th>
+                            <th class="px-4 py-3 font-semibold">Trạng thái</th>
+                            <th class="px-4 py-3 font-semibold">Ngày bắt đầu</th>
+                            <th class="px-4 py-3 font-semibold">Ngày kết thúc</th>
+                            <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm">
+                        <tr th:each="doctor : ${doctors}" class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="px-4 py-3" th:text="${doctor.doctorId}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.fullname}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.specialty}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.address}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.license}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.gender}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.phoneNumber}"></td>
+                            <td class="px-4 py-3">
+                                <span th:text="${doctor.status}"
+                                    th:classappend="${doctor.status.name() == 'APPROVED' ? 'text-green-700 bg-green-100' : (doctor.status.name() == 'REJECTED' ? 'text-red-700 bg-red-100' : 'text-yellow-700 bg-yellow-100')}"
+                                    class="px-2 py-1 font-semibold leading-tight rounded-full">
+                                </span>
+                            </td>
+                            <td class="px-4 py-3" th:text="${doctor.startdate}"></td>
+                            <td class="px-4 py-3" th:text="${doctor.enddate}"></td>
+                            <td
+                                class="px-4 py-3 text-center space-x-2 flex flex-wrap justify-center items-center gap-2">
+                                <a th:href="@{/admin/partners/view/{id}(id=${doctor.doctorId})}"
+                                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Xem
+                                </a>
+                                <form th:if="${doctor.status.name() == 'PENDING' || doctor.status.name() == 'REJECTED'}"
+                                    th:action="@{/admin/partners/approve/{id}(id=${doctor.doctorId})}" method="post"
+                                    style="display:inline">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1 text-green-600 hover:text-white font-medium px-2 py-1 rounded hover:bg-green-600 transition bg-green-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Duyệt
+                                    </button>
+                                </form>
+                                <form th:if="${doctor.status.name() == 'PENDING' || doctor.status.name() == 'APPROVED'}"
+                                    th:action="@{/admin/partners/reject/{id}(id=${doctor.doctorId})}" method="post"
+                                    style="display:inline">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1 text-red-600 hover:text-white font-medium px-2 py-1 rounded hover:bg-red-600 transition bg-red-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Từ chối
+                                    </button>
+                                </form>
+                                <form th:action="@{/admin/partners/delete/{id}(id=${doctor.doctorId})}" method="post"
+                                    style="display:inline"
+                                    onsubmit="return confirm('Bạn có chắc chắn muốn xoá bác sĩ này?');">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1 text-gray-600 hover:text-white font-medium px-2 py-1 rounded hover:bg-gray-700 transition bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4a2 2 0 012 2v2H7V5a2 2 0 012-2zm-2 6h8" />
+                                        </svg>
+                                        Xoá
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${doctors == null or #lists.isEmpty(doctors)}">
+                            <td colspan="7" class="px-4 py-12 text-center text-gray-500">Không có bác sĩ nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-center mt-6" th:if="${doctorsPage != null && doctorsPage.totalPages > 1}">
+                <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+                    <a th:href="@{/admin/partners(page=0, size=${doctorsPage.size}, search=${search}, status=${status}, sortField=${sortField}, sortDir=${sortDir})}"
+                        th:classappend="${doctorsPage.first} ? 'pointer-events-none opacity-50' : ''"
+                        class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-l-md">&laquo;</a>
+                    <a th:each="i : ${#numbers.sequence(0, doctorsPage.totalPages-1)}"
+                        th:href="@{/admin/partners(page=${i}, size=${doctorsPage.size}, search=${search}, status=${status}, sortField=${sortField}, sortDir=${sortDir})}"
+                        th:text="${i+1}"
+                        th:classappend="${doctorsPage.number == i} ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                        class="px-3 py-2 border border-gray-300"></a>
+                    <a th:href="@{/admin/partners(page=${doctorsPage.totalPages-1}, size=${doctorsPage.size}, search=${search}, status=${status}, sortField=${sortField}, sortDir=${sortDir})}"
+                        th:classappend="${doctorsPage.last} ? 'pointer-events-none opacity-50' : ''"
+                        class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-r-md">&raquo;</a>
+                </nav>
+            </div>
+        </div>
+        <div id="tab-orders-content" th:if="${tab} == 'orders'" style="">
+            <!-- Thông báo -->
+            <div th:if="${successMessage}" class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+                [[${successMessage}]]</div>
+            <div th:if="${errorMessage}" class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">[[${errorMessage}]]
+            </div>
+            <!-- Filter/Search/Sort/PageSize Form -->
+            <form method="get" th:action="@{/admin/partners}" class="flex flex-wrap gap-4 mb-6 items-end"
+                id="orderFilterForm">
+                <input type="hidden" name="tab" value="orders" />
+                <div>
+                    <label for="searchOrder" class="block text-sm font-medium text-gray-700">Tìm kiếm bác sĩ</label>
+                    <input type="text" id="searchOrder" name="searchOrder" th:value="${searchOrder}"
+                        placeholder="Nhập tên bác sĩ..."
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        autocomplete="off" />
+                </div>
+                <div>
+                    <label for="statusOrder" class="block text-sm font-medium text-gray-700">Lọc trạng thái</label>
+                    <select id="statusOrder" name="statusOrder" th:value="${statusOrder}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option value="">Tất cả</option>
+                        <option th:each="s : ${statusesOrder}" th:value="${s}" th:text="${s}"
+                            th:selected="${statusOrder == s.name()}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label for="membershipId" class="block text-sm font-medium text-gray-700">Lọc Membership</label>
+                    <select id="membershipId" name="membershipId" th:value="${membershipId}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option value="">Tất cả</option>
+                        <option th:each="m : ${allMemberships}" th:value="${m.membershipId}" th:text="${m.name}"
+                            th:selected="${membershipId == m.membershipId}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label for="typeOrder" class="block text-sm font-medium text-gray-700">Loại</label>
+                    <select id="typeOrder" name="typeOrder" th:value="${typeOrder}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option value="">Tất cả</option>
+                        <option value="RENEWAL" th:selected="${typeOrder == 'RENEWAL'}">Gia hạn</option>
+                        <option value="UPGRADE" th:selected="${typeOrder == 'UPGRADE'}">Nâng cấp</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortFieldOrder" class="block text-sm font-medium text-gray-700">Sắp xếp theo</label>
+                    <select id="sortFieldOrder" name="sortFieldOrder" th:value="${sortFieldOrder}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option value="id" th:selected="${sortFieldOrder == 'id'}">ID</option>
+                        <option value="doctor.fullname" th:selected="${sortFieldOrder == 'doctor.fullname'}">Tên bác sĩ
+                        </option>
+                        <option value="membership.name" th:selected="${sortFieldOrder == 'membership.name'}">Membership
+                        </option>
+                        <option value="totalprice" th:selected="${sortFieldOrder == 'totalprice'}">Tổng giá</option>
+                        <option value="status" th:selected="${sortFieldOrder == 'status'}">Trạng thái</option>
+                        <option value="createdAt" th:selected="${sortFieldOrder == 'createdAt'}">Ngày tạo</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortDirOrder" class="block text-sm font-medium text-gray-700">Chiều</label>
+                    <select id="sortDirOrder" name="sortDirOrder" th:value="${sortDirOrder}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option value="asc" th:selected="${sortDirOrder == 'asc'}">Tăng dần</option>
+                        <option value="desc" th:selected="${sortDirOrder == 'desc'}">Giảm dần</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sizeOrder" class="block text-sm font-medium text-gray-700">Số dòng/trang</label>
+                    <select id="sizeOrder" name="sizeOrder" th:value="${ordersPage.size}"
+                        class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        onchange="document.getElementById('orderFilterForm').submit()">
+                        <option th:value="10" th:selected="${ordersPage.size == 10}">10</option>
+                        <option th:value="20" th:selected="${ordersPage.size == 20}">20</option>
+                        <option th:value="50" th:selected="${ordersPage.size == 50}">50</option>
+                        <option th:value="100" th:selected="${ordersPage.size == 100}">100</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Lọc</button>
+                </div>
+            </form>
+            <script>
+                // Debounce search input
+                let searchOrderTimeout;
+                document.getElementById('searchOrder').addEventListener('input', function () {
+                    clearTimeout(searchOrderTimeout);
+                    searchOrderTimeout = setTimeout(function () {
+                        document.getElementById('orderFilterForm').submit();
+                    }, 500);
+                });
+            </script>
+            <div class="flex items-center justify-between mt-2 mb-2"
+                th:if="${ordersPage != null && ordersPage.totalElements > 0}">
+                <div class="text-sm text-gray-600">
+                    Hiển thị <span th:text="${ordersPage.number * ordersPage.size + 1}"></span>–<span
+                        th:text="${ordersPage.number * ordersPage.size + ordersPage.numberOfElements}"></span> trên tổng
+                    <span th:text="${ordersPage.totalElements}"></span> đăng ký
+                </div>
+            </div>
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+                <table class="w-full text-left table-auto">
+                    <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                        <tr>
+                            <th class="px-4 py-3 font-semibold">ID</th>
+                            <th class="px-4 py-3 font-semibold">Tên bác sĩ</th>
+                            <th class="px-4 py-3 font-semibold">Membership</th>
+                            <th class="px-4 py-3 font-semibold">Tổng giá</th>
+                            <th class="px-4 py-3 font-semibold">Số lượng</th>
+                            <th class="px-4 py-3 font-semibold">Loại</th>
+                            <th class="px-4 py-3 font-semibold">Trạng thái</th>
+                            <th class="px-4 py-3 font-semibold">Ngày tạo</th>
+                            <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm">
+                        <tr th:each="order : ${orders}" class="border-b border-gray-200 hover:bg-gray-50">
+                            <td class="px-4 py-3" th:text="${order.id}"></td>
+                            <td class="px-4 py-3" th:text="${order.doctor.fullname}"></td>
+                            <td class="px-4 py-3" th:text="${order.membership.name}"></td>
+                            <td class="px-4 py-3" th:text="${#numbers.formatCurrency(order.totalprice)}"></td>
+                            <td class="px-4 py-3" th:text="${order.count}"></td>
+                            <td class="px-4 py-3">
+                                <span th:switch="${order.type != null ? order.type.name() : 'UNKNOWN'}">
+                                    <span th:case="'RENEWAL'"
+                                        class="px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold">Gia hạn</span>
+                                    <span th:case="'UPGRADE'"
+                                        class="px-2 py-1 rounded bg-purple-100 text-purple-700 font-semibold">Nâng
+                                        cấp</span>
+                                    <span th:case="*"
+                                        class="px-2 py-1 rounded bg-gray-100 text-gray-700 font-semibold">Khác</span>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span th:text="${order.status}"
+                                    th:classappend="${order.status.name() == 'APPROVED' ? 'text-green-700 bg-green-100' : (order.status.name() == 'REJECTED' ? 'text-red-700 bg-red-100' : 'text-yellow-700 bg-yellow-100')}"
+                                    class="px-2 py-1 font-semibold leading-tight rounded-full">
+                                </span>
+                            </td>
+                            <td class="px-4 py-3" th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm')}">
+                            </td>
+                            <td
+                                class="px-4 py-3 text-center space-x-2 flex flex-wrap justify-center items-center gap-2">
+                                <a th:href="@{/admin/partners/orders/view/{id}(id=${order.id})}"
+                                    class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Xem
+                                </a>
+                                <form th:if="${order.status.name() == 'PENDING'}"
+                                    th:action="@{/admin/partners/orders/approve/{id}(id=${order.id})}" method="post"
+                                    style="display:inline">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1 text-green-600 hover:text-white font-medium px-2 py-1 rounded hover:bg-green-600 transition bg-green-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Duyệt
+                                    </button>
+                                </form>
+                                <form th:if="${order.status.name() == 'PENDING'}"
+                                    th:action="@{/admin/partners/orders/reject/{id}(id=${order.id})}" method="post"
+                                    style="display:inline">
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1 text-red-600 hover:text-white font-medium px-2 py-1 rounded hover:bg-red-600 transition bg-red-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Từ chối
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${orders == null or #lists.isEmpty(orders)}">
+                            <td colspan="8" class="px-4 py-12 text-center text-gray-500">Không có đăng ký nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-center mt-6" th:if="${ordersPage != null && ordersPage.totalPages > 1}">
+                <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+                    <a th:href="@{/admin/partners(tab='orders',pageOrder=0, sizeOrder=${ordersPage.size}, searchOrder=${searchOrder}, statusOrder=${statusOrder}, membershipId=${membershipId}, sortFieldOrder=${sortFieldOrder}, sortDirOrder=${sortDirOrder})}"
+                        th:classappend="${ordersPage.first} ? 'pointer-events-none opacity-50' : ''"
+                        class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-l-md">&laquo;</a>
+                    <a th:each="i : ${#numbers.sequence(0, ordersPage.totalPages-1)}"
+                        th:href="@{/admin/partners(tab='orders',pageOrder=${i}, sizeOrder=${ordersPage.size}, searchOrder=${searchOrder}, statusOrder=${statusOrder}, membershipId=${membershipId}, sortFieldOrder=${sortFieldOrder}, sortDirOrder=${sortDirOrder})}"
+                        th:text="${i+1}"
+                        th:classappend="${ordersPage.number == i} ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                        class="px-3 py-2 border border-gray-300"></a>
+                    <a th:href="@{/admin/partners(tab='orders',pageOrder=${ordersPage.totalPages-1}, sizeOrder=${ordersPage.size}, searchOrder=${searchOrder}, statusOrder=${statusOrder}, membershipId=${membershipId}, sortFieldOrder=${sortFieldOrder}, sortDirOrder=${sortDirOrder})}"
+                        th:classappend="${ordersPage.last} ? 'pointer-events-none opacity-50' : ''"
+                        class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-r-md">&raquo;</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

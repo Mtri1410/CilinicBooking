@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Chi tiết người dùng</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Chi tiết người dùng</h1>
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <dt class="font-semibold">ID:</dt>
+                <dd th:text="${user.userId}"></dd>
+                <dt class="font-semibold">Họ tên:</dt>
+                <dd th:text="${user.fullName}"></dd>
+                <dt class="font-semibold">Số điện thoại:</dt>
+                <dd th:text="${user.phoneNumber}"></dd>
+                <dt class="font-semibold">Địa chỉ:</dt>
+                <dd th:text="${user.address}"></dd>
+                <dt class="font-semibold">Note:</dt>
+                <dd th:text="${user.note}"></dd>
+                <dt class="font-semibold">Followup:</dt>
+                <dd th:text="${user.followup}"></dd>
+                <dt class="font-semibold">Ngày tạo:</dt>
+                <dd th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></dd>
+                <dt class="font-semibold">Ngày cập nhật:</dt>
+                <dd th:text="${#temporals.format(user.updatedAt, 'yyyy-MM-dd HH:mm')}"></dd>
+            </dl>
+            <div class="mt-6">
+                <a th:href="@{/admin/users}" class="text-blue-600 hover:underline">Quay lại danh sách</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

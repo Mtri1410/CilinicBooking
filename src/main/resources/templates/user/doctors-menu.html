@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${pageTitle ?: 'Danh sách bác sĩ - ClinicBooking'}">Danh sách bác sĩ - ClinicBooking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a th:href="@{/}" class="text-blue-600 text-2xl font-bold">
+                        <i class="fas fa-clinic-medical mr-2"></i>ClinicBooking
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/}" class="text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-home mr-1"></i> Trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <form th:action="@{/doctors-menu}" method="get" class="flex gap-2">
+                        <input type="text" name="search" th:value="${param.search}"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Tìm kiếm bác sĩ...">
+                        <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150">
+                            <i class="fas fa-search mr-2"></i>Tìm kiếm
+                        </button>
+                    </form>
+                </div>
+                <div class="w-full md:w-64">
+                    <select name="specialty" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onchange="window.location.href=this.value">
+                        <option value="/doctors-menu">Tất cả chuyên khoa</option>
+                        <option th:each="spec : ${specialties}"
+                                th:value="@{/doctors-menu(specialty=${spec})}"
+                                th:text="${spec}"
+                                th:selected="${spec == currentSpecialty}">
+                            Chuyên khoa
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Doctor Card -->
+            <div th:if="${doctors != null}" th:each="doctor : ${doctors}" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-150">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-gray-200 rounded-full overflow-hidden mr-4">
+                            <img th:if="${doctor.image != null}" th:src="@{'/images/doctors/' + ${doctor.image}}" alt="Doctor Avatar"
+                                class="w-full h-full object-cover">
+                            <div th:unless="${doctor.image != null}"
+                                class="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600">
+                                <i class="fas fa-user-md text-2xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-800" th:text="${doctor.fullname != null ? doctor.fullname : 'Chưa cập nhật'}">Chưa cập nhật</h3>
+                            <p class="text-gray-600" th:text="${doctor.specialty != null ? doctor.specialty : 'Chưa cập nhật chuyên khoa'}">Chưa cập nhật chuyên khoa</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                        <p class="text-gray-600">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            <span th:text="${doctor.address != null ? doctor.address : 'Chưa cập nhật địa chỉ'}">Chưa cập nhật địa chỉ</span>
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center text-yellow-400">
+                            <i class="fas fa-star"></i>
+                            <span class="ml-1 text-gray-600">Chưa có đánh giá</span>
+                        </div>
+                        <a th:href="@{/doctors/{id}(id=${doctor.doctorId})}"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div th:if="${doctors == null || doctors.empty}" class="text-center py-12">
+            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600">Không tìm thấy bác sĩ phù hợp</h3>
+            <p class="text-gray-500 mt-2">Vui lòng thử lại với từ khóa khác hoặc chọn chuyên khoa khác</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <p>&copy; 2024 ClinicBooking. Mọi quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <title>Hello Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="Doctor/_Layout">
+  <body >
+    <div layout:fragment="content" id="page-content-wrapper">
+ <style>
+        .date-container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 15px;
+            margin: 20px auto;
+        }
+        
+        .date-picker-custom {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            flex-grow: 1;
+        }
+        
+        .week-display {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .schedule-table th {
+            background-color: #e9ecef;
+            position: sticky;
+            top: 0;
+        }
+        
+        .schedule-table th.time-header {
+            width: 100px;
+        }
+        
+        .current-day-header {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .time-slot {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .schedule-cell {
+            height: 50px;
+            cursor: pointer;
+        }
+        
+        .schedule-cell:hover {
+            background-color: #e2e6ea;
+        }
+        
+
+
+
+        
+    </style>
+        <div class="container-fluid px-3">
+         <div class="row">
+             <div class="col-12">
+                 <div class="date-container">
+                    <h3 class="mb-4 text-center">Chọn tuần</h3>
+                    
+                    <div class="date-picker-custom">
+                        <!-- Nút mũi tên trái -->
+                        <a href="javascript:void(0);" class="btn btn-primary" id="prevWeek">
+                            <i class='fas fa-arrow-left'></i>
+                        </a>
+                        
+                        <!-- Input date -->
+                        <input type="date" class="form-control" id="datePicker">
+                        
+                        <!-- Nút mũi tên phải -->
+                        <a href="javascript:void(0);" class="btn btn-primary" id="nextWeek">
+                            <i class='fas fa-arrow-right'></i>
+                        </a>
+                    </div>
+                    
+                    <div class="date-info text-center" id="selectedDateInfo">
+                        Tuần: <span id="displayWeekRange">Chưa chọn</span>
+                    </div>
+                    
+                    <div class="week-display">
+                        <div class="text-center mb-2 fw-bold">Lịch tuần</div>
+                        <div class="table-responsive">
+                            <table class="schedule-table" id="scheduleTable">
+                                <thead>
+                                    <tr>
+                                        <th class="time-header">Time</th>
+                                        <!-- Các header ngày trong tuần sẽ được thêm vào đây bằng JavaScript -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Các khung giờ và ô lịch sẽ được thêm vào đây bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+             </div>
+         </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div id="chartSection">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalLabel">Tạo lịch hẹn mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm" method="post">
+                    <div class="mb-3">
+                        <label for="patientName" class="form-label">Tên bệnh nhân</label>
+                        <input type="text" class="form-control" id="patientName" name="patientName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <input type="hidden" class="form-control" id="patientId" name="patientId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="patientPhone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="patientPhone" name="patientPhone" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointmentDate" class="form-label">Ngày khám</label>
+                        <input type="text" class="form-control" id="appointmentDate" name="appointmentDate" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointmentTime" class="form-label">Thời gian</label>
+                        <input type="text" class="form-control" id="appointmentTime" name="appointmentTime" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="appointmentNote" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="appointmentNote" name="appointmentNote" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Hidden fields để lưu thông tin period và ngày -->
+                    <input type="hidden" id="selectedPeriod" name="period">
+                    <input type="hidden" id="selectedDate" name="date">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveAppointment" onclick="saveSchedule()">Lưu lịch hẹn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1" aria-labelledby="appointmentDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentDetailsModalLabel">
+                    <i class="fas fa-calendar-alt"></i> Chi Tiết Lịch Hẹn
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group mb-3">
+                            <label class="info-label">Mã lịch hẹn:</label>
+                            <span class="info-value" id="modalAppointmentId">-</span>
+                        </div>
+                        <div class="info-group mb-3">
+                            <label class="info-label">Bệnh nhân:</label>
+                            <span class="info-value" id="modalPatientName">-</span>
+                        </div>
+                        <div class="info-group mb-3">
+                            <label class="info-label">Ngày khám:</label>
+                            <span class="info-value" id="modalAppointmentDate">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group mb-3">
+                            <label class="info-label">Thời gian:</label>
+                            <span class="info-value" id="modalTimeRange">-</span>
+                        </div>
+                        <div class="info-group mb-3">
+                            <label class="info-label">Trạng thái:</label>
+                            <span class="info-value" id="modalStatus">-</span>
+                        </div>
+                        <div class="info-group mb-3">
+                            <label class="info-label">Thời gian đặt:</label>
+                            <span class="info-value" id="modalBookingTime">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="depositSection" style="display: none;">
+                    <div class="col-12">
+                        <div class="info-group mb-3">
+                            <label class="info-label">Tiền đặt cọc:</label>
+                            <span class="info-value text-success fw-bold" id="modalDepositAmount">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+    <div layout:fragment="scripts">
+        <script src="/js/doctor_appointment.js"></script>
+    </div>
+</body>
+</html>

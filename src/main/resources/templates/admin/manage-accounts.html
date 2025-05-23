@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/admin-layout}">
+
+<head>
+    <title>Manage Accounts</title>
+</head>
+
+<body>
+    <div layout:fragment="content" class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Quản lí tài khoản</h1>
+            <!-- Xoá hoặc ẩn nút thêm tài khoản mới -->
+        </div>
+        <form method="get" th:action="@{/admin/accounts}" class="flex flex-wrap gap-4 mb-6 items-end" id="filterForm">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700">Tìm kiếm Username</label>
+                <input type="text" id="search" name="search" th:value="${search}" placeholder="Nhập username..."
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    autocomplete="off" />
+            </div>
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Lọc theo Role</label>
+                <select id="role" name="role" th:value="${role}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="">Tất cả</option>
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${role == r.name()}">
+                    </option>
+                </select>
+            </div>
+            <div>
+                <label for="sortField" class="block text-sm font-medium text-gray-700">Sắp xếp theo</label>
+                <select id="sortField" name="sortField" th:value="${sortField}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="accountId" th:selected="${sortField == 'accountId'}">ID</option>
+                    <option value="username" th:selected="${sortField == 'username'}">Username</option>
+                    <option value="email" th:selected="${sortField == 'email'}">Email</option>
+                    <option value="role" th:selected="${sortField == 'role'}">Role</option>
+                </select>
+            </div>
+            <div>
+                <label for="sortDir" class="block text-sm font-medium text-gray-700">Chiều</label>
+                <select id="sortDir" name="sortDir" th:value="${sortDir}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="asc" th:selected="${sortDir == 'asc'}">Tăng dần</option>
+                    <option value="desc" th:selected="${sortDir == 'desc'}">Giảm dần</option>
+                </select>
+            </div>
+            <div>
+                <label for="size" class="block text-sm font-medium text-gray-700">Số dòng/trang</label>
+                <select id="size" name="size" th:value="${accountsPage.size}"
+                    class="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option th:value="10" th:selected="${accountsPage.size == 10}">10</option>
+                    <option th:value="20" th:selected="${accountsPage.size == 20}">20</option>
+                    <option th:value="50" th:selected="${accountsPage.size == 50}">50</option>
+                    <option th:value="100" th:selected="${accountsPage.size == 100}">100</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Lọc</button>
+            </div>
+        </form>
+        <script>
+            // Debounce search input
+            let searchTimeout;
+            document.getElementById('search').addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    document.getElementById('filterForm').submit();
+                }, 500);
+            });
+        </script>
+        <div th:if="${successMessage}" class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">[[${successMessage}]]
+        </div>
+        <div th:if="${errorMessage}" class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">[[${errorMessage}]]</div>
+        <div class="flex items-center justify-between mt-2 mb-2"
+            th:if="${accountsPage != null && accountsPage.totalElements > 0}">
+            <div class="text-sm text-gray-600">
+                Hiển thị <span th:text="${accountsPage.number * accountsPage.size + 1}"></span>–<span
+                    th:text="${accountsPage.number * accountsPage.size + accountsPage.numberOfElements}"></span> trên
+                tổng <span th:text="${accountsPage.totalElements}"></span> tài khoản
+            </div>
+        </div>
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+            <table class="w-full text-left table-auto">
+                <thead class="bg-gray-200 text-gray-700 uppercase text-sm">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">ID</th>
+                        <th class="px-6 py-3 font-semibold">Username</th>
+                        <th class="px-6 py-3 font-semibold">Email</th>
+                        <th class="px-6 py-3 font-semibold">Role</th>
+                        <th class="px-6 py-3 font-semibold text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm">
+                    <tr th:each="account : ${accounts}" class="border-b border-gray-200 hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${account.accountId}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${account.username}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap" th:text="${account.email}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:text="${account.role}"
+                                th:classappend="${account.role.name() == 'ADMIN' ? 'text-red-700 bg-red-100' : (account.role.name() == 'DOCTOR' ? 'text-purple-700 bg-purple-100' : 'text-green-700 bg-green-100')}"
+                                class="px-2 py-1 font-semibold leading-tight rounded-full">
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+                            <a th:href="@{/admin/accounts/edit/{id}(id=${account.accountId})}"
+                                class="text-blue-600 hover:text-blue-800 font-medium">Edit</a>
+                            <form th:action="@{/admin/accounts/delete/{id}(id=${account.accountId})}" method="post"
+                                style="display:inline"
+                                onsubmit="return confirm('Bạn có chắc chắn muốn xoá tài khoản này?');">
+                                <button type="submit"
+                                    class="text-red-600 hover:text-red-800 font-medium bg-transparent border-none cursor-pointer">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${accounts == null or #lists.isEmpty(accounts)}">
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">No accounts found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="flex justify-center mt-6" th:if="${accountsPage != null && accountsPage.totalPages > 1}">
+            <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+                <a th:href="@{/admin/accounts(page=0, size=${accountsPage.size}, search=${search}, role=${role}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:classappend="${accountsPage.first} ? 'pointer-events-none opacity-50' : ''"
+                    class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-l-md">&laquo;</a>
+                <a th:each="i : ${#numbers.sequence(0, accountsPage.totalPages-1)}"
+                    th:href="@{/admin/accounts(page=${i}, size=${accountsPage.size}, search=${search}, role=${role}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:text="${i+1}"
+                    th:classappend="${accountsPage.number == i} ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    class="px-3 py-2 border border-gray-300"></a>
+                <a th:href="@{/admin/accounts(page=${accountsPage.totalPages-1}, size=${accountsPage.size}, search=${search}, role=${role}, sortField=${sortField}, sortDir=${sortDir})}"
+                    th:classappend="${accountsPage.last} ? 'pointer-events-none opacity-50' : ''"
+                    class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 rounded-r-md">&raquo;</a>
+            </nav>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8">
+    <title layout:title-pattern="$CONTENT_TITLE - ClinicBooking">ClinicBooking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E88E5',
+                        'primary-hover': '#1565C0',
+                        'secondary': '#455A64',
+                        'secondary-hover': '#37474F',
+                        'accent': '#FFC107',
+                        'success': '#10B981',
+                        'error': '#EF4444',
+                        'info': '#3B82F6',
+                        'warning': '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+    <th:block layout:fragment="styles"></th:block>
+</head>
+
+<body class="font-sans antialiased bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a th:href="@{/user/home}" class="text-primary text-2xl font-bold">
+                        <i class="fas fa-clinic-medical mr-2"></i>ClinicBooking
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <a th:href="@{/doctors-menu}" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fas fa-search mr-2"></i>Tìm bác sĩ
+                    </a>
+                    <a th:href="@{/user/profile}" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fas fa-user-circle mr-2"></i>Hồ sơ
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="text-gray-600 hover:text-primary transition-colors">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <div layout:fragment="content">
+            <!-- Content from specific pages will be inserted here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    © 2024 ClinicBooking. All rights reserved.
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-primary transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block layout:fragment="scripts"></th:block>
+</body>
+
+</html> 

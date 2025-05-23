@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <title>Hello Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="Doctor/_Layout">
+    <body >
+ <div layout:fragment="content" id="page-content-wrapper">
+  <div class="container-fluid px-4 pb-4">
+    <div id="form-page">
+      <style>
+        #form-page .form-card {
+          max-width: 900px;
+          margin: auto;
+          padding: 30px;
+          background: white;
+          border-radius: 15px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #form-page .form-title {
+          font-weight: bold;
+          margin-bottom: 30px;
+          color: #0d6efd;
+        }
+        
+        #form-page .section-title {
+          font-weight: bold;
+          margin-bottom: 20px;
+          color: #495057;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 10px;
+        }
+      </style>
+
+      <div class="form-card">
+        <h3 class="form-title text-center">Thông Tin Cá Nhân</h3>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <form th:action="@{/doctor/profile/save}" method="post" th:object="${doctor}">
+          <div class="row">
+            <!-- Cột thông tin cá nhân -->
+            <div class="col-md-6 pe-md-4">
+              <h5 class="section-title">Thông tin chung</h5>
+              <input type="hidden" th:field="*{doctorId}" />
+              <div class="mb-3">
+                <label for="username" class="form-label">Tài khoản</label>
+                <input type="text" class="form-control" id="username" th:field="*{account.username}" placeholder="Nhập họ tên của bạn" readonly>
+              </div>
+              
+              <div class="mb-3">
+                <label for="fullname" class="form-label">Họ và tên</label>
+                <input type="text" class="form-control" id="fullname" th:field="*{fullname}" placeholder="Nhập họ tên của bạn">
+              </div>
+              
+              <div class="mb-3">
+                <label for="specialty" class="form-label">Chuyên ngành</label>
+                <input type="text" class="form-control" id="specialty" th:field="*{specialty}" placeholder="Nhập chuyên ngành">
+              </div>
+              
+              <div class="mb-3">
+                <label for="license" class="form-label">Bằng cấp</label>
+                <input type="text" class="form-control" id="license" th:field="*{license}" placeholder="Nhập bằng cấp">
+              </div>
+              
+              <div class="mb-3">
+                <label for="membership" class="form-label">Mức đối tác</label>
+                <input type="hidden" class="form-control" id="membership" th:field="*{membership.name}" placeholder="Mức đối tác"  >
+                <br>
+                  <div class="dropdown">
+                    <a class="btn btn-success mt-2 dropdown-toggle" id="detailmebership"th:text=" ${doctor.membership.name} "></a>
+                      <div id="membershipList" class="mt-3" style="display: none;">
+                        <div class="card mb-2 p-2">
+                          <label>Mức giá: <span th:text="${doctor.membership.price}"></span></label>
+                          <label>Chi tiết: <span th:text="${doctor.membership.description}"></span></label>
+                          <div class="mt-2 mb-2">
+                            <a class="btn btn-primary" th:href="@{/doctor/upmembership}">Gia hạn/Nâng cấp</a>
+                          </div>
+                        </div>
+
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" th:field="*{account.email}" placeholder="example@gmail.com">
+              </div>
+              
+              <div class="mb-3">
+                <label for="dob" class="form-label">Ngày sinh</label>
+                <input type="date" class="form-control" id="dob" name="birthday"
+                      th:value="${doctor.birthday != null ? #temporals.format(doctor.birthday, 'yyyy-MM-dd') : ''}" required>
+              </div>
+                            
+              <div class="mb-3">
+                <label for="gender" class="form-label">Giới tính</label>
+                <select class="form-select" id="gender" th:field="*{gender}">
+                  <option value="" selected disabled>Chọn giới tính</option>
+                  <option value="female">Nữ</option>
+                  <option value="male">Nam</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="address" class="form-label">Địa chỉ</label>
+                <input type="text" class="form-control" id="address" th:field="*{address}" placeholder="Nhập địa chỉ">
+              </div>
+            </div>
+            
+            <!-- Cột đổi mật khẩu -->
+            <div class="col-md-6 ps-md-4">
+              <h5 class="section-title">Thay đổi mật khẩu</h5>
+              
+            <div class="mb-3">
+              <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+              
+              <div class="input-group">
+                <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+                <button class="btn btn-outline-secondary" type="button" id="passcurrent">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+              
+             <div class="mb-3">
+              <label for="newPassword" class="form-label">Mật khẩu mới</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Nhập mật khẩu mới">
+                <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+              
+              <div class="mb-4 mt-5">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="changepass" name="changepass">
+                  <label class="form-check-label" for="emailNotification">Đổi mật khẩu</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4">Lưu thông tin</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+    <div layout:fragment="scripts">
+           <script src="/js/DoctorInfo.js"></script>
+    </div>
+</body>
+</html>

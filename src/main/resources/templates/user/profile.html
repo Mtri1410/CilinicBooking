@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/user-layout}">
+<head>
+    <title>Thông tin cá nhân</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container {
+            padding: 2rem 0;
+            background-color: #f8f9fa;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #0061f2 0%, #6e00ff 100%);
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .profile-icon {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1rem;
+        }
+        .profile-info {
+            padding: 2rem;
+        }
+        .info-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        .info-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .info-value {
+            color: #2d2d2d;
+            font-weight: 500;
+        }
+        .appointment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+        .appointment-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-PENDING {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-CONFIRMED {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-CANCELLED {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        .tab-content {
+            padding: 2rem;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0061f2;
+            border-bottom: 3px solid #0061f2;
+            background: none;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            background-color: white;
+            min-width: 300px;
+        }
+        .toast-success {
+            border-left: 4px solid #198754;
+        }
+        .toast-error {
+            border-left: 4px solid #dc3545;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        .fade-out {
+            animation: fadeOut 0.5s ease-in-out forwards;
+        }
+        .modal-content {
+            border-radius: 15px;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #0061f2 0%, #6e00ff 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        .modal-body {
+            padding: 2rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #0061f2 0%, #6e00ff 100%);
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #0052cc 0%, #5c00d6 100%);
+            transform: translateY(-2px);
+        }
+        .toast {
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .toast-header {
+            border-bottom: none;
+            padding: 0.75rem 1rem;
+        }
+        .toast-body {
+            padding: 1rem;
+        }
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="profile-container">
+        <div class="container">
+            <!-- Toast Container -->
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                <div th:if="${successMessage}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                    <div class="toast-header bg-success text-white">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong class="me-auto">Thông báo</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" th:text="${successMessage}"></div>
+                </div>
+                
+                <div th:if="${errorMessage}" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                    <div class="toast-header bg-danger text-white">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong class="me-auto">Lỗi</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" th:text="${errorMessage}"></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Thông tin cá nhân -->
+                <div class="col-lg-4 mb-4">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-icon mb-3">
+                                <i class="fas fa-user-circle fa-5x"></i>
+                            </div>
+                            <h3 th:text="${user.fullName}" class="mb-2">Họ và tên</h3>
+                            <p class="mb-0">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span>Bệnh nhân</span>
+                            </p>
+                        </div>
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </div>
+                                <div class="info-value" th:text="${user.account.email}">email@example.com</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-phone me-2"></i>Số điện thoại
+                                </div>
+                                <div class="info-value" th:text="${user.phoneNumber}">0123456789</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ
+                                </div>
+                                <div class="info-value" th:text="${user.address}">Địa chỉ</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>Ngày tham gia
+                                </div>
+                                <div class="info-value" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy')}">01/01/2024</div>
+                            </div>
+                            <button class="btn btn-gradient w-100" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                                <i class="fas fa-edit me-2"></i>Cập nhật thông tin
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lịch sử đặt khám -->
+                <div class="col-lg-8">
+                    <div class="profile-card">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#upcoming">
+                                    <i class="fas fa-calendar-check me-2"></i>Lịch hẹn sắp tới
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#history">
+                                    <i class="fas fa-history me-2"></i>Lịch sử cuộc hẹn
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <!-- Tab lịch hẹn sắp tới -->
+                            <div id="upcoming" class="tab-pane active">
+                                <div th:if="${appointments.?[bookingTime.isAfter(T(java.time.LocalDateTime).now())].empty}" class="text-center py-5">
+                                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Bạn chưa có lịch hẹn nào sắp tới.</p>
+                                    <a href="/booking" class="btn btn-gradient">
+                                        <i class="fas fa-plus me-2"></i>Đặt lịch khám
+                                    </a>
+                                </div>
+
+                                <div th:each="appointment : ${appointments}" 
+                                     th:if="${appointment.bookingTime.isAfter(T(java.time.LocalDateTime).now())}"
+                                     class="appointment-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5>
+                                                <i class="fas fa-user-md me-2"></i>
+                                                <span th:text="${appointment.schedule.doctor.fullname}">Bác sĩ</span>
+                                            </h5>
+                                            <p class="mb-2">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                <span th:text="${#temporals.format(appointment.bookingTime, 'dd/MM/yyyy')}"></span>
+                                            </p>
+                                            <p class="mb-2">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <span th:text="${T(com.example.bai1.Utils.TimeUtils).getPeriodTime(appointment.period)}"></span>
+                                            </p>
+                                            <p class="mb-2">
+                                                <i class="fas fa-stethoscope me-2"></i>
+                                                <span th:text="${appointment.schedule.doctor.specialty}">Chuyên khoa</span>
+                                            </p>
+                                            <p class="mb-0" th:if="${appointment.depositAmount != null}">
+                                                <i class="fas fa-money-bill-wave me-2"></i>
+                                                <span th:text="${#numbers.formatDecimal(appointment.depositAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                    Tiền đặt cọc
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-md-end">
+                                            <span class="status-badge mb-3 d-inline-block"
+                                                  th:classappend="${'status-' + appointment.status}"
+                                                  th:text="${appointment.status}">
+                                                Trạng thái
+                                            </span>
+                                            <div th:if="${appointment.status.toString() == 'PENDING' or appointment.status.toString() == 'CONFIRMED'}">
+                                                <button class="btn btn-danger action-btn"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#cancelModal' + ${appointment.appointmentId}">
+                                                    <i class="fas fa-times me-1"></i>Hủy lịch
+                                                </button>
+                                                <button th:if="${appointment.status.toString() == 'PENDING'}" 
+                                                        class="btn btn-primary action-btn mt-2"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#rescheduleModal' + ${appointment.appointmentId}">
+                                                    <i class="fas fa-calendar-alt me-1"></i>Thay đổi lịch
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab lịch sử cuộc hẹn -->
+                            <div id="history" class="tab-pane fade">
+                                <div th:if="${appointments.?[bookingTime.isBefore(T(java.time.LocalDateTime).now())].empty}" class="text-center py-5">
+                                    <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Chưa có lịch sử cuộc hẹn nào.</p>
+                                </div>
+
+                                <div th:each="appointment : ${appointments}" 
+                                     th:if="${appointment.bookingTime.isBefore(T(java.time.LocalDateTime).now())}"
+                                     class="appointment-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5>
+                                                <i class="fas fa-user-md me-2"></i>
+                                                <span th:text="${appointment.schedule.doctor.fullname}">Bác sĩ</span>
+                                            </h5>
+                                            <p class="mb-2">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                <span th:text="${#temporals.format(appointment.bookingTime, 'dd/MM/yyyy')}"></span>
+                                            </p>
+                                            <p class="mb-2">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <span th:text="${T(com.example.bai1.Utils.TimeUtils).getPeriodTime(appointment.period)}"></span>
+                                            </p>
+                                            <p class="mb-2">
+                                                <i class="fas fa-stethoscope me-2"></i>
+                                                <span th:text="${appointment.schedule.doctor.specialty}">Chuyên khoa</span>
+                                            </p>
+                                            <p class="mb-0" th:if="${appointment.depositAmount != null}">
+                                                <i class="fas fa-money-bill-wave me-2"></i>
+                                                <span th:text="${#numbers.formatDecimal(appointment.depositAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                    Tiền đặt cọc
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-md-end">
+                                            <span class="status-badge mb-3 d-inline-block"
+                                                  th:classappend="${'status-' + appointment.status}"
+                                                  th:text="${appointment.status}">
+                                                Trạng thái
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cập nhật thông tin -->
+    <div class="modal fade" id="updateProfileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-edit me-2"></i>Cập nhật thông tin cá nhân
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/user/profile/update}" method="post" th:object="${userUpdateDTO}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">
+                                <i class="fas fa-user me-2"></i>Họ và tên
+                            </label>
+                            <input type="text" class="form-control" id="fullName" th:field="*{fullName}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">
+                                <i class="fas fa-phone me-2"></i>Số điện thoại
+                            </label>
+                            <input type="text" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ
+                            </label>
+                            <textarea class="form-control" id="address" th:field="*{address}" rows="3" required></textarea>
+                            <div class="text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Đóng
+                        </button>
+                        <button type="submit" class="btn btn-gradient">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hủy lịch -->
+    <div th:each="appointment : ${appointments}" class="modal fade" th:id="'cancelModal' + ${appointment.appointmentId}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Xác nhận hủy lịch
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Sau khi hủy, bạn sẽ không thể khôi phục lại lịch hẹn này.
+                    </div>
+                    <p>Bạn có chắc chắn muốn hủy lịch hẹn với bác sĩ 
+                        <strong th:text="${appointment.schedule.doctor.fullname}"></strong>?
+                    </p>
+                    <p>
+                        <i class="fas fa-calendar me-2"></i>
+                        <strong>Ngày khám: </strong>
+                        <span th:text="${#temporals.format(appointment.bookingTime, 'dd/MM/yyyy')}"></span>
+                    </p>
+                    <p>
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Thời gian: </strong>
+                        <span th:text="${T(com.example.bai1.Utils.TimeUtils).getPeriodTime(appointment.period)}"></span>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Đóng
+                    </button>
+                    <form th:action="@{/user/appointments/{id}/cancel(id=${appointment.appointmentId})}" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-check me-2"></i>Xác nhận hủy
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đổi lịch -->
+    <div th:each="appointment : ${appointments}" class="modal fade" th:id="'rescheduleModal' + ${appointment.appointmentId}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-calendar-alt me-2"></i>Thay đổi lịch hẹn
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/user/appointments/{id}/reschedule(id=${appointment.appointmentId})}" method="post">
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-4">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Thông tin lịch hẹn hiện tại:</h6>
+                            <p class="mb-1">
+                                <strong>Bác sĩ:</strong> <span th:text="${appointment.schedule.doctor.fullname}"></span>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Ngày khám:</strong> <span th:text="${#temporals.format(appointment.bookingTime, 'dd/MM/yyyy')}"></span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Giờ khám:</strong> <span th:text="${T(com.example.bai1.Utils.TimeUtils).getPeriodTime(appointment.period)}"></span>
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="newDate" class="form-label">
+                                <i class="fas fa-calendar me-2"></i>Chọn ngày mới
+                            </label>
+                            <input type="date" class="form-control" id="newDate" name="newDate" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="newTime" class="form-label">
+                                <i class="fas fa-clock me-2"></i>Chọn giờ mới
+                            </label>
+                            <select class="form-control" id="newTime" name="newTime" required>
+                                <option value="">Chọn thời gian</option>
+                                <option value="1">07:00 - 08:30</option>
+                                <option value="2">08:30 - 10:00</option>
+                                <option value="3">10:00 - 11:30</option>
+                                <option value="4">13:00 - 14:30</option>
+                                <option value="5">14:30 - 16:00</option>
+                                <option value="6">16:00 - 17:30</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Đóng
+                        </button>
+                        <button type="submit" class="btn btn-gradient">
+                            <i class="fas fa-check me-2"></i>Xác nhận đổi lịch
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Thiết lập ngày tối thiểu cho input date trong modal đổi lịch
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        input.min = tomorrow.toISOString().split('T')[0];
+        
+        // Giới hạn đặt lịch tối đa 30 ngày từ hiện tại
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 30);
+        input.max = maxDate.toISOString().split('T')[0];
+        
+        // Gắn sự kiện onchange để hiển thị thông báo nếu người dùng chọn ngày trong quá khứ
+        input.addEventListener('change', function() {
+            validateDate(this);
+        });
+    });
+    
+    // Thêm validation cho các form đổi lịch hẹn
+    const rescheduleForms = document.querySelectorAll('form[action*="reschedule"]');
+    rescheduleForms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const dateInput = this.querySelector('input[name="newDate"]');
+            const timeInput = this.querySelector('select[name="newTime"]');
+            
+            // Kiểm tra cả ngày và giờ đã được chọn chưa
+            if (!validateDate(dateInput) || !validateTime(timeInput)) {
+                event.preventDefault(); // Ngăn form submit nếu validation thất bại
+            }
+        });
+        
+        // Gắn validation cho dropdown chọn giờ
+        const timeSelects = form.querySelectorAll('select[name="newTime"]');
+        timeSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                validateTime(this);
+            });
+        });
+    });
+
+    // Khởi tạo tất cả các toast
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+    });
+    
+    // Hiển thị tất cả các toast
+    toastList.forEach(function(toast) {
+        toast.show();
+    });
+
+    // Tự động ẩn sau 3 giây
+    setTimeout(function() {
+        toastList.forEach(function(toast) {
+            toast.hide();
+        });
+    }, 3000);
+});
+
+/**
+ * Kiểm tra ngày có hợp lệ không (phải sau ngày hiện tại)
+ * @param {HTMLInputElement} dateInput - Input ngày cần kiểm tra
+ * @returns {boolean} Kết quả kiểm tra
+ */
+function validateDate(dateInput) {
+    // Xóa thông báo lỗi cũ nếu có
+    clearErrorMessage(dateInput);
+    
+    if (!dateInput.value) {
+        showErrorMessage(dateInput, 'Vui lòng chọn ngày');
+        return false;
+    }
+    
+    const selectedDate = new Date(dateInput.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt thời gian về 00:00:00
+    
+    if (selectedDate <= today) {
+        showErrorMessage(dateInput, 'Vui lòng chọn ngày sau ngày hiện tại');
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Kiểm tra giờ có được chọn chưa
+ * @param {HTMLSelectElement} timeSelect - Select giờ cần kiểm tra
+ * @returns {boolean} Kết quả kiểm tra
+ */
+function validateTime(timeSelect) {
+    // Xóa thông báo lỗi cũ nếu có
+    clearErrorMessage(timeSelect);
+    
+    if (!timeSelect.value) {
+        showErrorMessage(timeSelect, 'Vui lòng chọn khung giờ');
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Hiển thị thông báo lỗi bên dưới trường input
+ * @param {HTMLElement} inputElement - Trường input cần hiển thị lỗi
+ * @param {string} message - Nội dung lỗi
+ */
+function showErrorMessage(inputElement, message) {
+    // Kiểm tra xem đã có thông báo lỗi chưa
+    let errorElement = inputElement.parentElement.querySelector('.text-danger');
+    
+    if (!errorElement) {
+        // Tạo phần tử hiển thị lỗi mới
+        errorElement = document.createElement('div');
+        errorElement.className = 'text-danger mt-1';
+        inputElement.parentElement.appendChild(errorElement);
+    }
+    
+    errorElement.textContent = message;
+    inputElement.classList.add('is-invalid');
+}
+
+/**
+ * Xóa thông báo lỗi
+ * @param {HTMLElement} inputElement - Trường input cần xóa lỗi
+ */
+function clearErrorMessage(inputElement) {
+    const errorElement = inputElement.parentElement.querySelector('.text-danger');
+    if (errorElement) {
+        errorElement.remove();
+    }
+    inputElement.classList.remove('is-invalid');
+}
+
+// Thêm hàm helper vào phần script
+function getPeriodTime(period) {
+    switch(period) {
+        case 1: return "07:00 - 08:30";
+        case 2: return "08:30 - 10:00";
+        case 3: return "10:00 - 11:30";
+        case 4: return "13:00 - 14:30";
+        case 5: return "14:30 - 16:00";
+        case 6: return "16:00 - 17:30";
+        default: return "Không xác định";
+    }
+}
+</script>
+</body>
+</html> 

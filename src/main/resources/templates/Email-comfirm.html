@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Xác nhận liên kết</title>
+</head>
+<body>
+    <h2>Xác nhận liên kết tài khoản</h2>
+    
+    <p>Email <b th:text="${email}"></b> đã tồn tại dưới dạng tài khoản email/mật khẩu.</p>
+
+    <div th:if="${canLink}">
+        <p>Bạn có muốn liên kết tài khoản Google này với tài khoản hiện tại không?</p>
+        <form method="post" action="/link-account/confirm">
+                        <div class="mb-3">
+              <label for="currentPassword" class="form-label">Email</label>
+              
+              <div class="input-group">
+                <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+                <button class="btn btn-outline-secondary" type="button" id="passcurrent">
+                  <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+              
+           
+            <button type="submit">Gửi mã</button>
+        </form>
+    </div>
+
+    <div th:unless="${canLink}">
+        <p>Không thể liên kết: tài khoản không phải role PATIENT hoặc đã liên kết rồi.</p>
+        <a th:href="@{/SignIn}">Quay lại đăng nhập</a>
+    </div>
+</body>
+</html>

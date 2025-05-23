@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <title>Hello Page</title>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <html xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="Doctor/_Layout">
+  <body >
+    <div layout:fragment="content" id="page-content-wrapper">
+        <div class="container-fluid px-4" >
+            <h2 class="mb-4">Quản lý Đơn hàng</h2>
+            <div class="mb-3">
+              <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm sản phẩm..." onkeyup="if(event.key === 'Enter') onSearch()">
+                <button class="btn btn-primary" onclick="onSearch()">Tìm</button>
+              </div>
+            </div>
+        
+        
+            <table class="table table-striped table-hover" id="orderTable">
+              <thead class="table-dark">
+                <tr>
+                  <th class="sortable" onclick="sortTable(0)">ID <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                  <th class="sortable" onclick="sortTable(1)">Tên bệnh nhân <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                  <th class="sortable" onclick="sortTable(2)">Ngày đặt <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                  <th class="sortable" onclick="sortTable(3)">Tổng tiền <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                  <th class="sortable" onclick="sortTable(4)">Trạng thái <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                  <th>Hành động</th>
+                  <th></th>
+                </tr>
+              </thead>  
+              <tbody>
+              </tbody>
+            </table>
+            <div id="pagination"></div>
+          </div>
+          <div class="modal fade" id="orderdetailModal" tabindex="-1" aria-labelledby="orderdetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="orderdetailModalLabel">Chi tiết</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm sản phẩm..." onkeyup="if(event.key === 'Enter') onSearch()">
+                    <button class="btn btn-primary" onclick="onSearch()">Tìm</button>
+                  </div>
+                </div>
+                  <table class="table table-striped table-hover" id="orderdetailTable">
+                    <thead class="table-dark">
+                      <tr>
+                        <th class="sortable" onclick="sortdetailTable(0)">ID <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                        <th class="sortable" onclick="sortdetailTable(1)">Tên Sản Phẩm<i class="sort-icon fa-solid fa-sort-down"></i></th>
+                        <th class="sortable" onclick="sortdetailTable(2)">Số lượng <i class="sort-icon fa-solid fa-sort-down"></i></th>
+                        <th class="sortable" onclick="sortdetailTable(3)">Giá<i class="sort-icon fa-solid fa-sort-down"></i></th>
+                      </tr>
+                    </thead>  
+                    <tbody>
+                    </tbody>
+                  </table>
+                  <div id="paginationOrderDetail"></div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+              </div>
+            </div>
+          </div>    
+    </div>
+    <div layout:fragment="scripts">
+        <script src="/js/doctor_order.js"></script>
+    </div>
+</body>
+</html>

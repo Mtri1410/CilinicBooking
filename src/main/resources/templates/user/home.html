@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title th:text="${pageTitle ?: 'Trang chủ - ClinicBooking'}">Trang chủ - ClinicBooking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#1E88E5', // Blue-600 for healthcare branding
+                        'primary-hover': '#1565C0', // Blue-700
+                        'secondary': '#455A64', // Blue Grey 700
+                        'secondary-hover': '#37474F', // Blue Grey 800
+                        'accent': '#FFC107', // Amber A400 for highlights
+                        'success': '#10B981', // Emerald-500
+                        'error': '#EF4444',   // Red-500
+                        'info': '#3B82F6',    // Blue-500
+                        'warning': '#F59E0B' // Amber-500
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Basic Toast Styling */
+        .toast {
+            @apply fixed top-20 right-5 max-w-xs w-full p-4 rounded-lg shadow-lg text-white text-sm z-50;
+            /* Adjusted top to be below navbar */
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            @apply bg-success;
+        }
+
+        .toast-error {
+            @apply bg-error;
+        }
+
+        .toast-info {
+            @apply bg-info;
+        }
+
+        .toast-warning {
+            @apply bg-warning;
+        }
+
+        /* Additional global styles if needed */
+        body {
+            @apply bg-gray-100 text-gray-800;
+        }
+
+        .content-wrapper {
+            min-height: calc(100vh - 128px);
+            /* Assuming navbar and footer height total ~128px */
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a th:href="@{/user/home}" class="text-primary text-2xl font-bold">
+                        <i class="fas fa-clinic-medical mr-2"></i>ClinicBooking
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <!-- Not Logged In -->
+                    <div th:if="${username == null}" class="flex items-center space-x-3">
+                        <a th:href="@{/SignIn}"
+                            class="px-4 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition duration-150 ease-in-out">
+                            Đăng nhập
+                        </a>
+                        <a th:href="@{/SignUp}"
+                            class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-hover transition duration-150 ease-in-out">
+                            Đăng ký
+                        </a>
+                    </div>
+
+                    <!-- Logged In -->
+                    <div th:if="${username != null}" class="flex items-center space-x-4">
+                        <span class="text-gray-700 text-sm hidden sm:inline">Chào, <strong
+                                th:text="${username}">User</strong>!</span>
+                        <a th:href="@{/user/profile}"
+                            class="px-3 py-2 text-xs font-medium text-gray-600 hover:text-primary transition duration-150">
+                            <i class="fas fa-user-circle mr-1"></i> Hồ sơ
+                        </a>
+                        <a th:href="@{/user/register-doctor}"
+                            class="px-3 py-2 text-xs font-medium text-white bg-accent rounded-md hover:bg-yellow-500 transition duration-150 ease-in-out">
+                            <i class="fas fa-user-md mr-1"></i> Trở thành Đối tác
+                        </a>
+                        <a th:href="@{/cart}" class="text-gray-600 hover:text-primary transition duration-150">
+                            <i class="fas fa-shopping-cart fa-lg"></i>
+                        </a>
+                        <form th:action="@{/logout}" method="post" class="inline">
+                            <button type="submit"
+                                class="px-3 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100 hover:text-primary transition duration-150 ease-in-out">
+                                <i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center mt-2">
+                <a th:href="@{/doctors-menu}"
+                    class="text-gray-600 hover:text-primary transition duration-150 block py-1">Menu Bác sĩ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Toast Message Placeholder -->
+    <div id="toast-container" class="fixed top-20 right-5 z-50 space-y-3"></div>
+
+
+    <!-- Main Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-primary to-blue-400 text-white py-20 px-4">
+            <div class="container mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Đặt Lịch Khám Bệnh Dễ Dàng</h1>
+                <p class="text-lg md:text-xl mb-8">Tìm kiếm bác sĩ chuyên khoa, đặt lịch hẹn trực tuyến nhanh chóng và
+                    tiện lợi.</p>
+                <div class="space-x-4">
+                    <a th:href="@{/doctors-menu}"
+                        class="bg-white text-primary font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-gray-100 transition duration-150">
+                        <i class="fas fa-search mr-2"></i>Tìm Bác Sĩ
+                    </a>
+                    <a th:if="${username != null}" th:href="@{/user/register-doctor}"
+                        class="bg-accent text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-yellow-500 transition duration-150">
+                        <i class="fas fa-user-md mr-2"></i>Đăng Ký Đối Tác Bác Sĩ
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Tại Sao Chọn ClinicBooking?</h2>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-6 shadow-lg rounded-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                        <div class="text-primary text-4xl mb-4"><i class="fas fa-calendar-check"></i></div>
+                        <h3 class="text-xl font-semibold mb-2">Đặt Lịch 24/7</h3>
+                        <p class="text-gray-600">Truy cập và đặt lịch hẹn mọi lúc, mọi nơi, ngay cả ngoài giờ hành
+                            chính.</p>
+                    </div>
+                    <div class="p-6 shadow-lg rounded-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                        <div class="text-primary text-4xl mb-4"><i class="fas fa-user-md"></i></div>
+                        <h3 class="text-xl font-semibold mb-2">Bác Sĩ Chuyên Khoa</h3>
+                        <p class="text-gray-600">Dễ dàng tìm kiếm bác sĩ theo chuyên khoa, kinh nghiệm và đánh giá.</p>
+                    </div>
+                    <div class="p-6 shadow-lg rounded-lg border border-gray-200 hover:shadow-xl transition-shadow">
+                        <div class="text-primary text-4xl mb-4"><i class="fas fa-bell"></i></div>
+                        <h3 class="text-xl font-semibold mb-2">Nhắc Lịch Tự Động</h3>
+                        <p class="text-gray-600">Nhận thông báo nhắc nhở lịch hẹn qua email hoặc SMS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section class="py-16 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Quy Trình Đặt Lịch Đơn Giản</h2>
+                <div class="flex flex-col md:flex-row justify-around items-center space-y-8 md:space-y-0 md:space-x-8">
+                    <div class="text-center">
+                        <div
+                            class="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+                            1</div>
+                        <p class="font-semibold">Tìm kiếm bác sĩ</p>
+                    </div>
+                    <div class="text-gray-400 hidden md:block"><i class="fas fa-arrow-right fa-2x"></i></div>
+                    <div class="text-center">
+                        <div
+                            class="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+                            2</div>
+                        <p class="font-semibold">Chọn lịch hẹn phù hợp</p>
+                    </div>
+                    <div class="text-gray-400 hidden md:block"><i class="fas fa-arrow-right fa-2x"></i></div>
+                    <div class="text-center">
+                        <div
+                            class="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+                            3</div>
+                        <p class="font-semibold">Xác nhận và nhận thông báo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-white py-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">ClinicBooking</h3>
+                    <p class="text-sm text-gray-300">Nền tảng đặt lịch khám bệnh trực tuyến hàng đầu, kết nối bệnh nhân
+                        với các bác sĩ chuyên khoa một cách nhanh chóng và tiện lợi.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">Liên Kết Nhanh</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a th:href="@{/about}" class="hover:text-accent transition duration-150">Về Chúng Tôi</a>
+                        </li>
+                        <li><a th:href="@{/contact}" class="hover:text-accent transition duration-150">Liên Hệ</a></li>
+                        <li><a th:href="@{/faq}" class="hover:text-accent transition duration-150">Câu Hỏi Thường
+                                Gặp</a></li>
+                        <li><a th:href="@{/terms}" class="hover:text-accent transition duration-150">Điều Khoản Dịch
+                                Vụ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">Theo Dõi Chúng Tôi</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-accent transition duration-150"><i
+                                class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-accent transition duration-150"><i
+                                class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-accent transition duration-150"><i
+                                class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-accent transition duration-150"><i
+                                class="fab fa-linkedin-in fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
+                &copy; <span th:text="${#dates.year(#dates.createNow())}"></span> ClinicBooking. Mọi quyền được bảo lưu.
+            </div>
+        </div>
+    </footer>
+
+    <script th:inline="javascript">
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} flex items-center gap-3`;
+
+            let iconSvg = '';
+            if (type === 'success') {
+                iconSvg = `<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            } else if (type === 'error') {
+                iconSvg = `<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            } else if (type === 'info') {
+                iconSvg = `<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            } // Note: warning icon was missing, can be added if needed
+            toast.innerHTML = iconSvg + `<span>${message}</span>`;
+
+            container.appendChild(toast);
+            toast.offsetHeight; // Trigger reflow
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode === container) {
+                        container.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            var successMessage = /*[[${successMessage}]]*/ null;
+            var errorMessage = /*[[${errorMessage}]]*/ null;
+            var infoMessage = /*[[${infoMessage}]]*/ null;
+            var warningMessage = /*[[${warningMessage}]]*/ null;
+
+            if (successMessage) showToast(successMessage, 'success');
+            if (errorMessage) showToast(errorMessage, 'error');
+            if (infoMessage) showToast(infoMessage, 'info');
+            if (warningMessage) showToast(warningMessage, 'warning'); // Will need warning icon in showToast if used
+        });
+    </script>
+</body>
+
+</html>

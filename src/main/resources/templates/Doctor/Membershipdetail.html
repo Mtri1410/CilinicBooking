@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<title>Hello Page</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="Doctor/_Layout">
+
+<body>
+  <div layout:fragment="content" id="page-content-wrapper">
+    <div class="container-fluid px-4 pb-4">
+      <div id="form-page">
+        <style>
+          #form-page .form-card {
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          #form-page .form-title {
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #0d6efd;
+          }
+
+          #form-page .section-title {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+          }
+        </style>
+        <div class="row g-3 my-2">
+          <div class="my-4">
+            <button id="btngiahan" class="btn btn-primary me-2" onclick="showgiahan()">Gia hạn</button>
+            <button id="btnnangcap" class="btn btn-outline-secondary" onclick="shownangcap()">Nâng cấp</button>
+          </div>
+        </div>
+        <div class="form-card" id="giahansection">
+
+          <h3 class="form-title text-center">Gia hạn</h3>
+          <form id="membershipFormgiahan" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="giahan">
+            <div class="mb-3">
+              <label for="endDate" class="form-label">Ngày hết hạn</label>
+              <input type="date" class="form-control" id="endDate" name="endDate" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="duration" class="form-label">Thời gian gia hạn</label>
+              <select class="form-select" id="duration" name="duration">
+                <option selected disabled>Chọn thời gian</option>
+                <option value="1">1 tháng</option>
+                <option value="2">2 tháng</option>
+                <option value="3">3 tháng</option>
+                <option value="6">6 tháng</option>
+                <option value="12">12 tháng</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="price" class="form-label" id="priceLabel">Giá gia hạn</label>
+              <input type="hidden" class="form-control" id="price" name="price" readonly>
+            </div>
+            <div class="text-center mt-4">
+              <button type="button" class="btn btn-primary px-4" onclick="giaHanThanhVienVnPay()">Gia hạn</button>
+            </div>
+          </form>
+        </div>
+        <div class="form-card" style="display: none;" id="nangcapsection">
+          <h3 class="form-title text-center">Nâng cấp</h3>
+          <form id="membershipFormnangcap" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="type" value="nangcap">
+            <div class="mb-3">
+              <label for="membershipName" class="form-label">Cấp độ hiện tại</label>
+              <input type="text" class="form-control" id="membershipName" name="membershipName" readonly>
+            </div>
+            <div class="mb-3">
+              <label for="durationup" class="form-label">Chọn cấp độ muốn thăng cấp</label>
+              <select class="form-select" id="durationup" name="durationup">
+                <option value="" selected disabled>Chọn cấp độ</option>
+                <option value="1">1 tháng</option>
+              </select>
+            </div>
+            <div class="text-center mt-4">
+              <button type="button" class="btn btn-primary px-4" id="nangcapButton"
+                onclick="nangcapthanhvienVnPay()">Nâng cấp</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="modal fade" id="membershipdetailModal" tabindex="-1" aria-labelledby="membershipdetailModal" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="membershipdetailModal">Gia hạn/Nâng mức đối tác</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="membershipForm"  method="post" enctype="multipart/form-data">
+
+                    <div class="mb-3">
+                      <label for="membershipName" class="form-label">Tên</label>
+                      <input type="text" class="form-control" id="membershipName" name="membershipName" readonly>
+                    </div>
+                    <div class="mb-3">
+                      <label for="membershipPrice" class="form-label">Giá</label>
+                      <input type="number" class="form-control" id="membershipPrice" name="membershipPrice"placeholder="Nhập giá sản phẩm">
+                    </div>
+                    <div class="mb-3">
+                      <label for="membershipdescription" class="form-label">Chi tiết</label>
+                      <input type="text" class="form-control" id="membershipdescription" name="membershipdescription" placeholder="Nhập chi tiết sản phẩm">
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                  <button type="button" class="btn btn-primary" onclick="Savedata()">Lưu</button>
+                </div>
+              </div>
+            </div>
+          </div>     -->
+  </div>
+  <div layout:fragment="scripts">
+    <script src="/js/Membershipdetail.js"></script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,389 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-color: #f8f9fa;
+    /* Lighter grey background */
+    color: #343a40;
+    /* Darker text for better readability */
+}
+
+.sidebar {
+    width: 260px;
+    /* Slightly wider */
+    background-color: #343a40;
+    /* Darker sidebar */
+    color: #f8f9fa;
+    /* Light text on dark background */
+    padding: 25px 15px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    /* To push home link to bottom */
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: #ffffff;
+    /* White title */
+    margin-bottom: 35px;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    /* Remove default margin */
+}
+
+.sidebar ul li a {
+    display: block;
+    color: #adb5bd;
+    /* Lighter grey for links */
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, padding-left 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.sidebar ul li a:hover {
+    background-color: #495057;
+    /* Slightly lighter dark on hover */
+    color: #ffffff;
+    padding-left: 25px;
+    /* Indent on hover */
+}
+
+.sidebar ul li a.active {
+    background-color: #007bff;
+    /* Primary blue for active */
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.main-content {
+    margin-left: 260px;
+    /* Account for sidebar width */
+    flex-grow: 1;
+    padding: 30px 40px;
+    /* More padding */
+    background-color: #ffffff;
+    /* White main content area */
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.main-content h1 {
+    color: #212529;
+    /* Very dark grey for headings */
+    border-bottom: 1px solid #dee2e6;
+    /* Lighter border */
+    padding-bottom: 15px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    /* More space below heading */
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.home-link {
+    margin-top: auto;
+    /* Pushes to bottom */
+    padding-top: 20px;
+    border-top: 1px solid #495057;
+    /* Separator line */
+}
+
+.home-link a {
+    display: block;
+    padding: 12px 20px;
+    background-color: #6c757d;
+    /* Secondary grey */
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.home-link a:hover {
+    background-color: #5a6268;
+    /* Darker secondary grey on hover */
+}
+
+/* Table Styling */
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    font-size: 0.95em;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #dee2e6;
+}
+
+.content-table thead tr {
+    background-color: #007bff;
+    /* Primary blue for header */
+    color: #ffffff;
+    text-align: left;
+    font-weight: 600;
+    /* Bolder header text */
+}
+
+.content-table th,
+.content-table td {
+    padding: 12px 18px;
+    /* Increased padding */
+    border-bottom: 1px solid #dee2e6;
+    /* Lighter lines */
+}
+
+.content-table tbody tr {
+    transition: background-color 0.1s ease-in-out;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+    background-color: #f8f9fa;
+    /* Slightly off-white for even rows */
+}
+
+.content-table tbody tr:hover {
+    background-color: #e9ecef;
+    /* Hover effect for rows */
+}
+
+.content-table tbody tr:last-of-type {
+    border-bottom: 2px solid #007bff;
+    /* Stronger bottom border for table */
+}
+
+.content-table .action-links a,
+.content-table .action-links button {
+    margin-right: 6px;
+    text-decoration: none;
+    padding: 6px 10px;
+    /* Smaller padding for action buttons */
+    font-size: 0.85em;
+    border-radius: 4px;
+}
+
+.content-table .action-links a:last-child,
+.content-table .action-links button:last-child {
+    margin-right: 0;
+}
+
+/* Button Styles */
+.btn {
+    padding: 10px 18px;
+    /* Adjusted padding */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 500;
+    display: inline-block;
+    margin-top: 10px;
+    margin-right: 8px;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85em;
+}
+
+/* Form Container & Elements */
+.form-container {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-top: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    /* More space for label */
+    font-weight: 500;
+    /* Slightly less bold label */
+    color: #495057;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    font-size: 0.95em;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Alerts */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 0.95em;
+}
+
+.alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.alert-info {
+    color: #055160;
+    background-color: #cff4fc;
+    border-color: #b6effb;
+}
+
+.alert-warning {
+    color: #664d03;
+    background-color: #fff3cd;
+    border-color: #ffecb5;
+}
+
+/* Utility for inline flex items */
+.filter-controls {
+    display: flex;
+    gap: 15px;
+    /* Spacing between filter elements */
+    align-items: flex-end;
+    /* Align items to the bottom (useful for button) */
+}
+
+.filter-controls .form-group {
+    flex-grow: 1;
+    /* Allow form groups to take available space */
+    margin-bottom: 0;
+    /* Remove bottom margin if used in .filter-controls */
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    /* More rounded badges */
+    font-size: 0.8em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    /* Warning yellow */
+    color: #343a40;
+    /* Dark text for yellow */
+}
+
+.status-approved {
+    background-color: #28a745;
+    /* Success green */
+    color: white;
+}
+
+.status-rejected {
+    background-color: #dc3545;
+    /* Danger red */
+    color: white;
+}
